@@ -63,7 +63,19 @@ export const TasteProfileQuiz = ({ isOpen, onClose, onRecommend }: QuizProps) =>
   const generateCakeImage = async (userName: string, palette: string, occasion: string) => {
     setIsGenerating(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+      let apiKey = '';
+      try {
+        // @ts-ignore
+        apiKey = (typeof process !== 'undefined' && process.env && process.env.GEMINI_API_KEY) || '';
+      } catch (e) {
+        apiKey = '';
+      }
+      
+      if (!apiKey || apiKey === 'undefined') {
+        throw new Error('GEMINI_API_KEY is missing');
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
       const prompt = `A high-end, artisanal, luxury bespoke cake for ${userName}'s ${occasion}. 
       The cake has a ${palette} flavor profile. 
       It is beautifully decorated with edible art, gold leaf, and elegant textures. 

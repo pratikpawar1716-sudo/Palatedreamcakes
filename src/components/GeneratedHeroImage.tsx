@@ -2,7 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { motion } from 'motion/react';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const getAiClient = () => {
+  let apiKey = '';
+  try {
+    // @ts-ignore
+    apiKey = (typeof process !== 'undefined' && process.env && process.env.GEMINI_API_KEY) || '';
+  } catch (e) {
+    apiKey = '';
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 export const GeneratedHeroImage = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(localStorage.getItem('hero-cake-editorial-v2'));
@@ -16,6 +25,20 @@ export const GeneratedHeroImage = () => {
 
     const generate = async () => {
       try {
+        let apiKey = '';
+        try {
+          // @ts-ignore
+          apiKey = (typeof process !== 'undefined' && process.env && process.env.GEMINI_API_KEY) || '';
+        } catch (e) {
+          apiKey = '';
+        }
+
+        if (!apiKey || apiKey === 'undefined') {
+          console.warn('GEMINI_API_KEY is missing or invalid. Using fallback image.');
+          return;
+        }
+
+        const ai = getAiClient();
         const prompt = `A full-bleed, high-resolution editorial photograph of a multi-tiered luxury cake. 
         The cake is a 3-tier masterpiece with a smooth cream-colored fondant base. 
         It features extremely intricate, hand-painted artisanal patterns inspired by regal tapestries and fine porcelain. 

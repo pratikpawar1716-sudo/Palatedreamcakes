@@ -1252,7 +1252,7 @@ export default function App() {
         onRecommend={(palette) => setActiveFilter(palette)}
       />
 
-      <div className="h-screen overflow-y-auto snap-y snap-mandatory no-scrollbar">
+      <div className="relative">
         <Hero />
         
         <BespokeStudio />
