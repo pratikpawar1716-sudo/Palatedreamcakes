@@ -260,6 +260,7 @@ export const TasteProfileQuiz = ({ isOpen, onClose, onRecommend }: QuizProps) =>
                         animate={{ scale: 1, opacity: 1 }}
                         src={generatedImage} 
                         alt="Generated Cake" 
+                        referrerPolicy="no-referrer"
                         className="w-full h-full object-cover rounded-full shadow-2xl border-4 border-white"
                       />
                     ) : (

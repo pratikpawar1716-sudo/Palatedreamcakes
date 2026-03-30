@@ -744,6 +744,7 @@ const ProductCard = ({ product, priority, index }: ProductCardProps) => {
           <motion.img
             src={currentSrc}
             alt={product.name}
+            referrerPolicy="no-referrer"
             onLoad={() => {
               console.log(`Image loaded for ${product.name}`);
               setIsLoaded(true);
@@ -752,7 +753,6 @@ const ProductCard = ({ product, priority, index }: ProductCardProps) => {
             whileHover={{ scale: 1.08 }}
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
             className={`w-full h-full object-cover transition-opacity duration-700 relative z-10 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-            referrerPolicy="no-referrer"
             loading={index < 6 ? "eager" : "lazy"}
             decoding="async"
             // @ts-ignore
