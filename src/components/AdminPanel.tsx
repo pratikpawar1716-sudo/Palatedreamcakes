@@ -161,7 +161,7 @@ export const AdminPanel = ({ onExit }: { onExit: () => void }) => {
             </div>
             <div>
               <h1 className="font-serif text-xl">Command Center</h1>
-              <p className="text-[9px] uppercase tracking-widest opacity-40 font-bold">The Palette Stories Official</p>
+              <p className="text-[9px] uppercase tracking-widest opacity-40 font-bold">THE LUXURY CAKE STUDIO Official</p>
             </div>
           </div>
 

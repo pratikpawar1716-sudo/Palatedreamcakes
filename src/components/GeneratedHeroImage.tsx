@@ -89,7 +89,7 @@ export const GeneratedHeroImage = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 1, ease: "easeOut" }}
         src={imageUrl || fallbackUrl} 
-        alt="The Palette Stories Hero Masterpiece" 
+        alt="THE LUXURY CAKE STUDIO Hero Masterpiece" 
         className="w-full h-full object-cover"
         referrerPolicy="no-referrer"
         loading="eager"

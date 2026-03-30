@@ -64,7 +64,7 @@ const BulkInquiryConcierge: React.FC<BulkInquiryConciergeProps> = ({
   };
 
   const generateWhatsAppMessage = () => {
-    const message = `⚜️ NEW BULK INQUIRY: THE PALETTE STORIES ⚜️
+    const message = `⚜️ NEW BULK INQUIRY: THE LUXURY CAKE STUDIO ⚜️
 -----------------------------------
 👤 Name: ${name || 'Not specified'}
 🍰 Product: ${product}

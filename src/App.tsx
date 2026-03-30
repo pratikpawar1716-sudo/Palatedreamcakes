@@ -82,7 +82,7 @@ const Navbar = () => {
             <span className="text-[7px] uppercase tracking-[0.4em] text-[#004F39] font-bold">Live Studio</span>
           </div>
           <div className="text-xl md:text-2xl font-serif italic tracking-tighter text-[#151613]">
-            The Palette Stories
+            THE LUXURY CAKE STUDIO
           </div>
         </div>
 
@@ -120,7 +120,7 @@ const Hero = () => {
           className="absolute top-12 left-8 md:left-24"
         >
           <span className="text-[11px] md:text-xs uppercase tracking-[0.6em] font-bold text-[#004F39] font-sans">
-            THE PALETTE STORIES
+            THE LUXURY CAKE STUDIO
           </span>
         </motion.div>
 
@@ -261,7 +261,7 @@ const FloatingIngredients = () => {
 
 // --- 3D Components ---
 
-const CakeModel = ({ color, customName, activeToppings }: { color: string, customName: string, activeToppings: string[] }) => {
+const CakeModel = ({ color, customName, activeToppings, shape = 'Round' }: { color: string, customName: string, activeToppings: string[], shape?: string }) => {
   const cakeRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
@@ -270,22 +270,56 @@ const CakeModel = ({ color, customName, activeToppings }: { color: string, custo
     }
   });
 
+  const Tier = ({ position, radius, height }: { position: [number, number, number], radius: number, height: number }) => {
+    if (shape === 'Square') {
+      return (
+        <mesh position={position} castShadow>
+          <boxGeometry args={[radius * 1.8, height, radius * 1.8]} />
+          <meshStandardMaterial color={color} roughness={0.4} metalness={0.1} />
+        </mesh>
+      );
+    }
+    if (shape === 'Heart') {
+      const heartShape = React.useMemo(() => {
+        const s = new THREE.Shape();
+        const x = 0, y = 0;
+        s.moveTo(x + 0.25, y + 0.25);
+        s.bezierCurveTo(x + 0.25, y + 0.25, x + 0.2, y, x, y);
+        s.bezierCurveTo(x - 0.3, y, x - 0.3, y + 0.35, x - 0.3, y + 0.35);
+        s.bezierCurveTo(x - 0.3, y + 0.55, x - 0.1, y + 0.77, x + 0.25, y + 0.95);
+        s.bezierCurveTo(x + 0.6, y + 0.77, x + 0.8, y + 0.55, x + 0.8, y + 0.35);
+        s.bezierCurveTo(x + 0.8, y + 0.35, x + 0.8, y, x + 0.5, y);
+        s.bezierCurveTo(x + 0.35, y, x + 0.25, y + 0.25, x + 0.25, y + 0.25);
+        return s;
+      }, []);
+
+      return (
+        <mesh 
+          position={[position[0] - radius * 0.3, position[1] - height * 0.5, position[2] - radius * 0.4]} 
+          rotation={[Math.PI / 2, 0, Math.PI]} 
+          castShadow 
+          scale={radius * 1.2}
+        >
+          <extrudeGeometry args={[heartShape, { depth: height / (radius * 1.2), bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05 }]} />
+          <meshStandardMaterial color={color} roughness={0.4} metalness={0.1} />
+        </mesh>
+      );
+    }
+    return (
+      <mesh position={position} castShadow>
+        <cylinderGeometry args={[radius, radius, height, 32]} />
+        <meshStandardMaterial color={color} roughness={0.4} metalness={0.1} />
+      </mesh>
+    );
+  };
+
   return (
     <group ref={cakeRef}>
       <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
         {/* Tiers */}
-        <mesh position={[0, 0, 0]} castShadow>
-          <cylinderGeometry args={[1.5, 1.5, 0.8, 32]} />
-          <meshStandardMaterial color={color} roughness={0.4} metalness={0.1} />
-        </mesh>
-        <mesh position={[0, 0.8, 0]} castShadow>
-          <cylinderGeometry args={[1.1, 1.1, 0.8, 32]} />
-          <meshStandardMaterial color={color} roughness={0.4} metalness={0.1} />
-        </mesh>
-        <mesh position={[0, 1.6, 0]} castShadow>
-          <cylinderGeometry args={[0.7, 0.7, 0.8, 32]} />
-          <meshStandardMaterial color={color} roughness={0.4} metalness={0.1} />
-        </mesh>
+        <Tier position={[0, 0, 0]} radius={1.5} height={0.8} />
+        <Tier position={[0, 0.8, 0]} radius={1.1} height={0.8} />
+        <Tier position={[0, 1.6, 0]} radius={0.7} height={0.8} />
 
         {/* Toppings */}
         <group position={[0, 2.0, 0]}>
@@ -384,13 +418,15 @@ const BespokeStudio = () => {
   const [toppings, setToppings] = useState<string[]>([]);
   const [customName, setCustomName] = useState('IVAAN');
   const [size, setSize] = useState('0.5kg');
+  const [shape, setShape] = useState('Round');
 
   const handleOrder = () => {
     sendSweetstoryOrder('bespoke', {
       base: flavor,
       toppings: toppings,
       size: size,
-      customName: customName
+      customName: customName,
+      shape: shape
     });
   };
 
@@ -454,7 +490,7 @@ const BespokeStudio = () => {
               <pointLight position={[-10, 5, -10]} intensity={1} />
               <directionalLight position={[0, 5, 5]} intensity={0.5} />
               
-              <CakeModel color={currentFlavor.color} customName={customName} activeToppings={toppings} />
+              <CakeModel color={currentFlavor.color} customName={customName} activeToppings={toppings} shape={shape} />
               
               <ContactShadows position={[0, -2.5, 0]} opacity={0.4} scale={10} blur={2} far={4.5} />
             </React.Suspense>
@@ -481,8 +517,29 @@ const BespokeStudio = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             {/* Flavor Palette - Organized in Lines */}
-            <div className="space-y-4">
-              <h3 className="text-[10px] uppercase tracking-[0.4em] opacity-60 font-bold">Flavor Palette</h3>
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <h3 className="text-[10px] uppercase tracking-[0.4em] opacity-60 font-bold">Cake Shape</h3>
+                <div className="flex gap-2">
+                  {['Round', 'Square', 'Heart'].map(s => (
+                    <button 
+                      key={s}
+                      onClick={() => setShape(s)}
+                      className={`px-4 py-2 rounded-full text-[9px] uppercase tracking-widest font-bold border transition-all ${
+                        shape === s 
+                          ? 'bg-[#004F39] text-white border-[#004F39]' 
+                          : 'bg-black/5 border-black/10 text-[#151613]/60 hover:border-black/30'
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-[10px] uppercase tracking-[0.4em] opacity-60 font-bold">Flavor Palette</h3>
+              </div>
               
               <div className="space-y-6">
                 <div>
@@ -578,7 +635,7 @@ const BespokeStudio = () => {
                 <div className="flex justify-between items-start">
                   <div className="space-y-1">
                     <p className="text-[8px] uppercase tracking-widest opacity-40">Selected Base</p>
-                    <p className="text-sm font-serif italic">{flavor}</p>
+                    <p className="text-sm font-serif italic">{flavor} ({shape})</p>
                   </div>
                   <div className="text-right">
                     <p className="text-[8px] uppercase tracking-widest opacity-40">Est. Total</p>
@@ -892,7 +949,7 @@ const HappyCustomers = () => {
   const [cards, setCards] = useState([
     { id: 1, name: "Ananya Sharma", text: "The most beautiful cake I've ever seen. It was the centerpiece of our wedding!", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400&h=500&auto=format&fit=crop" },
     { id: 2, name: "Rahul Mehta", text: "The Belgian truffle is out of this world. Highly recommend for any celebration.", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&h=500&auto=format&fit=crop" },
-    { id: 3, name: "Priya Das", text: "Artistry meets flavor. The Palette Stories is truly a gem in Pune.", img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=400&h=500&auto=format&fit=crop" },
+    { id: 3, name: "Priya Das", text: "Artistry meets flavor. THE LUXURY CAKE STUDIO is truly a gem in Pune.", img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=400&h=500&auto=format&fit=crop" },
     { id: 4, name: "Vikram Singh", text: "Bespoke service at its best. They understood exactly what I wanted.", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&h=500&auto=format&fit=crop" },
   ]);
 
@@ -919,7 +976,7 @@ const HappyCustomers = () => {
             Stories of <br /> <span className="italic">Happiness</span>
           </h2>
           <p className="text-[#151613]/60 text-sm tracking-wide leading-relaxed font-light max-w-md mb-12">
-            We don't just bake cakes; we craft memories. Hear from our patrons who have experienced the magic of The Palette Stories.
+            We don't just bake cakes; we craft memories. Hear from our patrons who have experienced the magic of THE LUXURY CAKE STUDIO.
           </p>
           <motion.button 
             whileHover={{ scale: 1.05, y: -2 }}
@@ -1171,7 +1228,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-32 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="text-[9px] uppercase tracking-[0.4em] text-white/20 font-bold">
-            © 2024 The Palette Stories. All Rights Reserved.
+            © 2024 THE LUXURY CAKE STUDIO. All Rights Reserved.
           </div>
           <div className="flex gap-8 text-[9px] uppercase tracking-[0.4em] text-white/20 font-bold">
             <a href="#" className="hover:text-[#B89B5E] transition-colors">Privacy Policy</a>
