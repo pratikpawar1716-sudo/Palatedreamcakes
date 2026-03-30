@@ -7,7 +7,7 @@ export const sendSweetstoryOrder = (type: 'grid' | 'bespoke' | 'custom' | 'quiz'
 
   switch (type) {
     case 'grid':
-      message = `${header}${greeting}\n\n🍰 *COLLECTION MASTERPIECE*\n--------------------------\n*Product:* ${data.name}\n*Category:* ${productCategory(data.category)}\n*Price:* ₹${data.price.toLocaleString('en-IN')}\n*Ref:* ${data.shortcode || 'N/A'}\n\nI'm inquiring about the availability of this specific creation for my upcoming celebration.`;
+      message = `${header}${greeting}\n\n🍰 *COLLECTION MASTERPIECE*\n--------------------------\n*Product:* ${data.name}\n*Category:* ${productCategory(data.category)}\n*Price:* ₹${data.price.toLocaleString('en-IN')}\n*Ref ID:* ${data.id || 'N/A'}\n\nI'm inquiring about the availability of this specific creation for my upcoming celebration.`;
       break;
     case 'bespoke':
       message = `${header}${greeting}\n\n🎨 *3D STUDIO DESIGN*\n--------------------------\n*Base Flavor:* ${data.base}\n*Shape:* ${data.shape || 'Round'}\n*Artisanal Toppings:* ${data.toppings.length > 0 ? data.toppings.join(', ') : 'Minimalist'}\n*Desired Size:* ${data.size}\n*Personalization:* "${data.customName || 'N/A'}"\n\nI have meticulously designed this cake in your 3D Studio and would like to proceed with this bespoke creation.`;

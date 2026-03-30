@@ -42,7 +42,7 @@ export const TasteProfileQuiz = ({ isOpen, onClose, onRecommend }: QuizProps) =>
     },
     {
       id: 3,
-      title: "The Palette",
+      title: "The Flavor Profile",
       subtitle: "Which flavors speak to your soul?",
       icon: Utensils,
       type: 'options',
@@ -187,15 +187,15 @@ export const TasteProfileQuiz = ({ isOpen, onClose, onRecommend }: QuizProps) =>
                         />
                       ))}
                     </div>
-                    <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-charcoal/30">Step 0{step} / 04</span>
+                    <span className="text-[10px] uppercase tracking-[0.3em] font-black text-charcoal/30">Step 0{step} / 04</span>
                   </div>
 
                   <div className="space-y-4">
                     <div className="flex items-center gap-4 text-[#B87A62]">
                       <currentStep.icon size={20} />
-                      <span className="text-[10px] uppercase tracking-[0.4em] font-bold">{currentStep.title}</span>
+                      <span className="text-[10px] uppercase tracking-[0.4em] font-black">{currentStep.title}</span>
                     </div>
-                    <h2 className="text-4xl md:text-5xl font-serif text-charcoal leading-tight">{currentStep.subtitle}</h2>
+                    <h2 className="text-4xl md:text-5xl font-serif font-black text-charcoal leading-tight">{currentStep.subtitle}</h2>
                   </div>
 
                   {currentStep.type === 'input' ? (
@@ -205,13 +205,13 @@ export const TasteProfileQuiz = ({ isOpen, onClose, onRecommend }: QuizProps) =>
                         value={selections.userName}
                         onChange={(e) => setSelections(prev => ({ ...prev, userName: e.target.value }))}
                         placeholder={currentStep.placeholder}
-                        className="w-full bg-white border border-charcoal/10 rounded-2xl py-6 px-8 text-center text-xs tracking-[0.3em] focus:outline-none focus:border-[#B87A62] transition-all"
+                        className="w-full bg-white border border-charcoal/10 rounded-2xl py-6 px-8 text-center text-xs tracking-[0.3em] font-black focus:outline-none focus:border-[#B87A62] transition-all"
                         autoFocus
                       />
                       <button 
                         onClick={handleNext}
                         disabled={!selections.userName}
-                        className="w-full py-6 bg-[#B87A62] text-white text-[10px] uppercase tracking-[0.3em] font-bold rounded-full hover:bg-charcoal transition-all duration-500 disabled:opacity-50"
+                        className="w-full py-6 bg-[#B87A62] text-white text-[10px] uppercase tracking-[0.3em] font-black rounded-full hover:bg-charcoal transition-all duration-500 disabled:opacity-50"
                       >
                         Continue
                       </button>
@@ -225,7 +225,7 @@ export const TasteProfileQuiz = ({ isOpen, onClose, onRecommend }: QuizProps) =>
                           className="group relative w-full text-left p-6 rounded-2xl border border-charcoal/5 bg-white hover:border-[#B87A62] hover:shadow-xl hover:shadow-[#B87A62]/5 transition-all duration-500"
                         >
                           <div className="flex justify-between items-center">
-                            <span className="font-serif text-xl text-charcoal group-hover:text-[#B87A62] transition-colors">{option}</span>
+                            <span className="font-serif font-black text-xl text-charcoal group-hover:text-[#B87A62] transition-colors">{option}</span>
                             <ChevronRight size={18} className="text-charcoal/20 group-hover:text-[#B87A62] group-hover:translate-x-1 transition-all" />
                           </div>
                         </button>
@@ -236,7 +236,7 @@ export const TasteProfileQuiz = ({ isOpen, onClose, onRecommend }: QuizProps) =>
                   {step > 1 && (
                     <button 
                       onClick={() => setStep(step - 1)}
-                      className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-charcoal/40 hover:text-charcoal transition-colors"
+                      className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-charcoal/40 hover:text-charcoal transition-colors"
                     >
                       <ChevronLeft size={14} /> Back
                     </button>
@@ -252,7 +252,7 @@ export const TasteProfileQuiz = ({ isOpen, onClose, onRecommend }: QuizProps) =>
                     {isGenerating ? (
                       <div className="w-full h-full bg-[#B87A62]/10 rounded-full flex flex-col items-center justify-center text-[#B87A62] space-y-4">
                         <Loader2 className="animate-spin" size={32} />
-                        <span className="text-[8px] uppercase tracking-widest font-bold">Visualizing your story...</span>
+                        <span className="text-[8px] uppercase tracking-widest font-black">Visualizing your story...</span>
                       </div>
                     ) : generatedImage ? (
                       <motion.img 
@@ -271,8 +271,8 @@ export const TasteProfileQuiz = ({ isOpen, onClose, onRecommend }: QuizProps) =>
                   </div>
                   
                   <div className="space-y-4">
-                    <h2 className="text-4xl md:text-5xl font-serif text-charcoal">A Masterpiece for {selections.userName}</h2>
-                    <p className="text-charcoal/60 font-light italic">"A {selections.palette.toLowerCase()} creation for your {selections.occasion.toLowerCase()} celebration."</p>
+                    <h2 className="text-4xl md:text-5xl font-serif font-black text-charcoal">A Masterpiece for {selections.userName}</h2>
+                    <p className="text-charcoal/60 font-black italic">"A {selections.palette.toLowerCase()} creation for your {selections.occasion.toLowerCase()} celebration."</p>
                   </div>
 
                   <div className="space-y-4">
@@ -280,7 +280,7 @@ export const TasteProfileQuiz = ({ isOpen, onClose, onRecommend }: QuizProps) =>
                       whileHover={{ scale: 1.02, y: -2 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleViewRecommendations}
-                      className="w-full py-6 bg-charcoal text-white text-[10px] uppercase tracking-[0.3em] font-bold rounded-full hover:bg-[#B87A62] transition-all duration-500 shadow-xl shadow-charcoal/10"
+                      className="w-full py-6 bg-charcoal text-white text-[10px] uppercase tracking-[0.3em] font-black rounded-full hover:bg-[#B87A62] transition-all duration-500 shadow-xl shadow-charcoal/10"
                     >
                       View My Recommendations
                     </motion.button>
@@ -288,7 +288,7 @@ export const TasteProfileQuiz = ({ isOpen, onClose, onRecommend }: QuizProps) =>
                       whileHover={{ scale: 1.02, y: -2 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleOrder}
-                      className="w-full py-6 border border-[#B87A62] text-[#B87A62] text-[10px] uppercase tracking-[0.3em] font-bold rounded-full hover:bg-[#B87A62] hover:text-white transition-all duration-500"
+                      className="w-full py-6 border border-[#B87A62] text-[#B87A62] text-[10px] uppercase tracking-[0.3em] font-black rounded-full hover:bg-[#B87A62] hover:text-white transition-all duration-500"
                     >
                       Order Recommendation via WhatsApp
                     </motion.button>
@@ -296,7 +296,7 @@ export const TasteProfileQuiz = ({ isOpen, onClose, onRecommend }: QuizProps) =>
 
                   <button 
                     onClick={resetQuiz}
-                    className="text-[9px] uppercase tracking-widest text-charcoal/40 hover:text-charcoal transition-colors font-bold"
+                    className="text-[9px] uppercase tracking-widest text-charcoal/40 hover:text-charcoal transition-colors font-black"
                   >
                     Retake Quiz
                   </button>

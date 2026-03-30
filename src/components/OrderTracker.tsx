@@ -144,22 +144,22 @@ export const OrderTracker = () => {
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-[10px] uppercase tracking-[0.4em] text-[#004F39] font-bold mb-4 block"
+          className="text-[10px] uppercase tracking-[0.4em] text-[#004F39] font-black mb-4 block"
         >
           Concierge Service
         </motion.span>
-        <h2 className="text-5xl md:text-6xl font-serif mb-8 text-[#151613]">Track Your Masterpiece</h2>
+        <h2 className="text-5xl md:text-6xl font-serif font-black mb-8 text-[#151613]">Track Your Masterpiece</h2>
         
         {!GOOGLE_SHEET_URL && (
           <div className="mb-12 p-8 bg-[#004F39]/5 rounded-[2rem] border border-[#004F39]/10 max-w-lg mx-auto">
             <div className="flex items-center gap-3 mb-4 justify-center">
               <RefreshCw className="text-[#004F39]/40" size={16} />
-              <span className="text-[10px] uppercase tracking-widest font-bold text-[#004F39]">Connection Pending</span>
+              <span className="text-[10px] uppercase tracking-widest font-black text-[#004F39]">Connection Pending</span>
             </div>
-            <p className="text-xs text-[#151613]/60 leading-relaxed mb-4">
+            <p className="text-xs text-[#151613]/60 leading-relaxed mb-4 font-bold">
               To connect your Google Sheet, please set the <strong>VITE_GOOGLE_SHEET_CSV_URL</strong> environment variable in your AI Studio settings.
             </p>
-            <div className="text-[9px] text-[#004F39]/60 font-mono bg-white/50 p-3 rounded-lg break-all">
+            <div className="text-[9px] text-[#004F39]/60 font-mono font-black bg-white/50 p-3 rounded-lg break-all">
               Currently using local sample data.
             </div>
           </div>
@@ -168,16 +168,16 @@ export const OrderTracker = () => {
         {GOOGLE_SHEET_URL && (
           <div className="flex items-center justify-center gap-2 mb-8">
             <div className={`w-2 h-2 rounded-full ${isSyncing ? 'bg-[#B89B5E] animate-pulse' : 'bg-emerald-500'}`} />
-            <span className="text-[9px] uppercase tracking-widest font-bold text-[#151613]/40">
+            <span className="text-[9px] uppercase tracking-widest font-black text-[#151613]/40">
               {isSyncing ? 'Syncing with Google Sheets...' : 'Live Sync Active'}
             </span>
             {!isSyncing && liveDatabase.length > 0 && (
               <div className="flex flex-col items-start">
-                <span className="px-2 py-0.5 bg-[#004F39]/10 text-[#004F39] text-[8px] font-bold rounded-full">
+                <span className="px-2 py-0.5 bg-[#004F39]/10 text-[#004F39] text-[8px] font-black rounded-full">
                   {liveDatabase.length} ORDERS FOUND
                 </span>
                 {lastSynced && (
-                  <span className="text-[7px] text-[#151613]/30 mt-1 uppercase tracking-tighter">
+                  <span className="text-[7px] text-[#151613]/30 mt-1 uppercase tracking-tighter font-black">
                     Last Synced: {lastSynced}
                   </span>
                 )}
@@ -246,15 +246,15 @@ export const OrderTracker = () => {
                   {getStatusIcon(searchResult.status)}
                 </div>
                 <div className="space-y-2">
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#004F39] font-bold">Order Status: {searchResult.status}</p>
-                  <h3 className="text-2xl font-serif text-[#151613]">Greetings, {searchResult.name}</h3>
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#004F39] font-black">Order Status: {searchResult.status}</p>
+                  <h3 className="text-2xl font-serif font-black text-[#151613]">Greetings, {searchResult.name}</h3>
                 </div>
-                <p className="text-lg font-serif italic text-[#151613]/80 leading-relaxed max-w-md">
+                <p className="text-lg font-serif italic font-black text-[#151613]/80 leading-relaxed max-w-md">
                   {getStatusMessage(searchResult.status)}
                 </p>
                 <button 
                   onClick={() => setSearchResult(null)}
-                  className="mt-4 text-[9px] uppercase tracking-widest text-[#151613]/40 hover:text-[#151613] transition-colors font-bold"
+                  className="mt-4 text-[9px] uppercase tracking-widest text-[#151613]/40 hover:text-[#151613] transition-colors font-black"
                 >
                   Clear Search
                 </button>
@@ -272,7 +272,7 @@ export const OrderTracker = () => {
               <div className="w-10 h-10 bg-rose/10 rounded-full flex items-center justify-center shrink-0">
                 <X className="text-rose" size={20} />
               </div>
-              <p className="text-sm text-rose leading-relaxed font-medium">
+              <p className="text-sm text-rose leading-relaxed font-black">
                 {error}
               </p>
             </motion.div>

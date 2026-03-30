@@ -15,7 +15,6 @@ export const products: Product[] = [
     name: 'Vintage Coquette Heart',
     price: 1800,
     category: 'Couture',
-    shortcode: 'CyuryzWv_1Z',
     description: 'Elegant heart-shaped masterpiece with signature ribbons.',
     images: ['https://images.unsplash.com/photo-1621303837174-89787a7d4729?auto=format&fit=crop&w=800&q=80'],
     priority: true
@@ -25,7 +24,6 @@ export const products: Product[] = [
     name: 'Belgian Truffle Royale',
     price: 1200,
     category: 'Signature',
-    shortcode: 'C0s6BuvIxwT',
     description: 'Deep chocolate experience with 70% dark Belgian cocoa.',
     images: ['https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80'],
     priority: true
@@ -35,7 +33,6 @@ export const products: Product[] = [
     name: 'Victorian Lace Cake',
     price: 2200,
     category: 'Couture',
-    shortcode: 'C92OHeaIVFs',
     description: 'Intricate Victorian-style Lambeth piping for a timeless look.',
     images: ['https://images.unsplash.com/photo-1535141192574-5d4897c12636?auto=format&fit=crop&w=800&q=80'],
     priority: true
@@ -45,7 +42,6 @@ export const products: Product[] = [
     name: 'Pressed Flower Meadow',
     price: 3000,
     category: 'Couture',
-    shortcode: 'DA6Ay2NzdQ9',
     description: 'Artisanal vanilla base decorated with hand-pressed organic petals.',
     images: ['https://images.unsplash.com/photo-1519340333755-56e9c1d04579?auto=format&fit=crop&w=800&q=80'],
     priority: false
@@ -55,7 +51,6 @@ export const products: Product[] = [
     name: 'Wildflower Bloom',
     price: 2800,
     category: 'Couture',
-    shortcode: 'DEoiixdTKRm',
     description: 'Garden-fresh design featuring a stunning arrangement of seasonal floral art.',
     images: ['https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=800&q=80'],
     priority: false
@@ -65,7 +60,6 @@ export const products: Product[] = [
     name: 'Lavender & Honey Zest',
     price: 1750,
     category: 'Signature',
-    shortcode: 'DFMbAm-z7Up',
     description: 'Sophisticated lavender notes with a bright citrus finish.',
     images: ['https://images.unsplash.com/photo-1542826438-bd32f43d626f?auto=format&fit=crop&w=800&q=80'],
     priority: false
@@ -75,7 +69,6 @@ export const products: Product[] = [
     name: 'Rose Petal Infusion',
     price: 2200,
     category: 'Signature',
-    shortcode: 'DGfnA-7zrFC',
     description: 'Classic luxury with premium rose water and soft petal accents.',
     images: ['https://images.unsplash.com/photo-1562440499-64c9a111f713?auto=format&fit=crop&w=800&q=80'],
     priority: false
@@ -85,7 +78,6 @@ export const products: Product[] = [
     name: 'Garden Herb & Citrus',
     price: 1900,
     category: 'Signature',
-    shortcode: 'DUVj9AjDIbd',
     description: 'Refreshing blend of fresh herbs and zesty lemon.',
     images: ['https://images.unsplash.com/photo-1519869325930-281384150729?auto=format&fit=crop&w=800&q=80'],
     priority: false
@@ -95,7 +87,6 @@ export const products: Product[] = [
     name: 'Minimalist Rose Bento',
     price: 399,
     category: 'Bento',
-    shortcode: 'DDuPCyPIped',
     description: 'Signature petite lunchbox cake for intimate celebrations.',
     images: ['https://images.unsplash.com/photo-1550617931-e17a7b70dce2?auto=format&fit=crop&w=800&q=80'],
     priority: false
@@ -105,7 +96,6 @@ export const products: Product[] = [
     name: 'Classic Vanilla Petite',
     price: 450,
     category: 'Bento',
-    shortcode: 'C8WJoz7PeNH',
     description: 'Pure elegance in a minimalist vanilla bean bento.',
     images: ['https://images.unsplash.com/photo-1551404973-7bb676337000?auto=format&fit=crop&w=800&q=80'],
     priority: false
@@ -115,7 +105,6 @@ export const products: Product[] = [
     name: 'Salted Caramel Mini',
     price: 599,
     category: 'Bento',
-    shortcode: 'C9cxGFBvWJu',
     description: 'Explosion of house-made salted caramel and sea salt.',
     images: ['https://images.unsplash.com/photo-1516054575922-f0b8eeadec1a?auto=format&fit=crop&w=800&q=80'],
     priority: false
@@ -125,7 +114,6 @@ export const products: Product[] = [
     name: 'Hazelnut Praline',
     price: 1450,
     category: 'Signature',
-    shortcode: 'C9lwxFNP4Zf',
     description: 'Crunchy house-made praline and smooth hazelnut cream.',
     images: ['https://images.unsplash.com/photo-1586985288123-2495f577c250?auto=format&fit=crop&w=800&q=80'],
     priority: false
@@ -135,7 +123,6 @@ export const products: Product[] = [
     name: 'Tiramisu Cheesecake',
     price: 2400,
     category: 'Signature',
-    shortcode: 'C9t0sYpvKYl',
     description: 'Fusion of coffee-soaked sponge and creamy cheesecake.',
     images: ['https://images.unsplash.com/photo-1571115177098-24ec42ed2bb4?auto=format&fit=crop&w=800&q=80'],
     priority: false
@@ -145,7 +132,6 @@ export const products: Product[] = [
     name: 'Lotus Biscoff Dream',
     price: 1900,
     category: 'Signature',
-    shortcode: 'C-CKstttBJ8',
     description: 'Favorite featuring Biscoff spread and signature spiced crunch.',
     images: ['https://images.unsplash.com/photo-1559620192-032c4bc4674e?auto=format&fit=crop&w=800&q=80'],
     priority: false
@@ -155,7 +141,6 @@ export const products: Product[] = [
     name: 'Pistachio Dream Bento',
     price: 650,
     category: 'Bento',
-    shortcode: 'C-E4QWUoHiK',
     description: 'Petite gourmet masterpiece with premium Iranian pistachios.',
     images: ['https://images.unsplash.com/photo-1557308536-ee471f13bc94?auto=format&fit=crop&w=800&q=80'],
     priority: false
@@ -165,9 +150,8 @@ export const products: Product[] = [
     name: 'Pastel Ribbon Heart',
     price: 1600,
     category: 'Couture',
-    shortcode: 'C83fuM7Ibhr',
     description: 'Soft pastel tones with high-fashion ribbon accents.',
-    images: ['https://images.unsplash.com/photo-1516054575922-f0b8eeadec1a?auto=format&fit=crop&w=800&q=80'],
+    images: ['https://images.unsplash.com/photo-1535254973040-607b474cb842?auto=format&fit=crop&w=800&q=80'],
     priority: false
   },
   {
@@ -175,9 +159,8 @@ export const products: Product[] = [
     name: 'Cherub Ornamented Cake',
     price: 2500,
     category: 'Couture',
-    shortcode: 'C03qkRkPBsw',
     description: 'Heavenly vintage cake with classic cherub motifs.',
-    images: ['https://images.unsplash.com/photo-1535141192574-5d4897c12636?auto=format&fit=crop&w=800&q=80'],
+    images: ['https://images.unsplash.com/photo-1514517604298-cf80e0fb7f1e?auto=format&fit=crop&w=800&q=80'],
     priority: false
   },
   {
@@ -185,9 +168,8 @@ export const products: Product[] = [
     name: 'Classic Lambeth Design',
     price: 2100,
     category: 'Couture',
-    shortcode: 'CjxTLMHPH8m',
     description: 'Technical showcase of heritage piping and regal detailing.',
-    images: ['https://images.unsplash.com/photo-1621303837174-89787a7d4729?auto=format&fit=crop&w=800&q=80'],
+    images: ['https://images.unsplash.com/photo-1505976378723-9726b54e9bb9?auto=format&fit=crop&w=800&q=80'],
     priority: false
   },
   {
@@ -195,7 +177,6 @@ export const products: Product[] = [
     name: 'Dark Chocolate Petite',
     price: 499,
     category: 'Bento',
-    shortcode: 'COdIPXTh5eZ',
     description: 'Intense cocoa experience in a perfectly sized bento box.',
     images: ['https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80'],
     priority: false
@@ -205,9 +186,8 @@ export const products: Product[] = [
     name: 'Dark Knight Ganache',
     price: 3950,
     category: 'Couture',
-    shortcode: 'CVYTzDmIR8E',
     description: 'Our deepest, boldest chocolate ganache masterpiece.',
-    images: ['https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80'],
+    images: ['https://images.unsplash.com/photo-1534432182912-63863115e106?auto=format&fit=crop&w=800&q=80'],
     priority: false
   }
 ];

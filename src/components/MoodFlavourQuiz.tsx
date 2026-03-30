@@ -140,9 +140,9 @@ export const MoodFlavourQuiz = () => {
     <section className="py-32 px-4 bg-[#FFFACA] relative overflow-hidden">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <span className="text-[10px] uppercase tracking-[0.4em] text-[#004F39] font-bold mb-4 block">Flavor Discovery</span>
-          <h2 className="text-5xl md:text-7xl font-serif text-[#151613]">The <span className="italic">Mood</span> Quiz</h2>
-          <p className="mt-6 text-[#151613]/40 font-light italic text-lg">Let your emotions guide your taste buds.</p>
+          <span className="text-[10px] uppercase tracking-[0.4em] text-[#004F39] font-black mb-4 block">Flavor Discovery</span>
+          <h2 className="text-5xl md:text-7xl font-serif font-black text-[#151613]">The <span className="italic">Mood</span> Quiz</h2>
+          <p className="mt-6 text-[#151613]/40 font-black italic text-lg">Let your emotions guide your taste buds.</p>
         </div>
 
         <div className="bg-white rounded-[3rem] shadow-2xl border border-black/5 overflow-hidden min-h-[600px] flex flex-col">
@@ -156,7 +156,7 @@ export const MoodFlavourQuiz = () => {
                 className="p-8 md:p-16 flex-1 flex flex-col"
               >
                 <div className="flex justify-between items-center mb-12">
-                  <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-[#004F39]">Question {step + 1} / 5</span>
+                  <span className="text-[10px] uppercase tracking-[0.3em] font-black text-[#004F39]">Question {step + 1} / 5</span>
                   <div className="flex gap-1">
                     {QUESTIONS.map((_, i) => (
                       <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i <= step ? 'w-6 bg-[#004F39]' : 'w-2 bg-[#004F39]/10'}`} />
@@ -164,7 +164,7 @@ export const MoodFlavourQuiz = () => {
                   </div>
                 </div>
 
-                <h3 className="text-3xl md:text-4xl font-serif text-[#151613] mb-12 leading-tight">
+                <h3 className="text-3xl md:text-4xl font-serif font-black text-[#151613] mb-12 leading-tight">
                   {QUESTIONS[step].question}
                 </h3>
 
@@ -178,7 +178,7 @@ export const MoodFlavourQuiz = () => {
                       <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-[#004F39] group-hover:bg-white/20 group-hover:text-white transition-all">
                         <option.icon size={24} />
                       </div>
-                      <span className="font-serif text-xl text-[#151613] group-hover:text-white transition-colors">{option.text}</span>
+                      <span className="font-serif font-black text-xl text-[#151613] group-hover:text-white transition-colors">{option.text}</span>
                     </button>
                   ))}
                 </div>
@@ -197,22 +197,22 @@ export const MoodFlavourQuiz = () => {
                   <div className="w-16 h-16 bg-[#004F39]/10 rounded-full flex items-center justify-center text-[#004F39] mb-8">
                     <Sparkles size={32} />
                   </div>
-                  <span className="text-[10px] uppercase tracking-[0.4em] text-[#004F39] font-bold mb-4 block">Your Match Found</span>
-                  <h3 className="text-4xl font-serif text-[#151613] mb-4">{result?.name}</h3>
-                  <p className="text-[#151613]/60 font-light italic mb-8 leading-relaxed">
+                  <span className="text-[10px] uppercase tracking-[0.4em] text-[#004F39] font-black mb-4 block">Your Match Found</span>
+                  <h3 className="text-4xl font-serif font-black text-[#151613] mb-4">{result?.name}</h3>
+                  <p className="text-[#151613]/60 font-black italic mb-8 leading-relaxed">
                     "{result?.description}"
                   </p>
                   
                   <div className="space-y-4">
                     <button 
                       onClick={handleOrder}
-                      className="w-full py-5 bg-[#004F39] text-white text-[10px] uppercase tracking-[0.3em] font-bold rounded-full hover:bg-[#151613] transition-all duration-500 shadow-xl shadow-[#004F39]/20"
+                      className="w-full py-5 bg-[#004F39] text-white text-[10px] uppercase tracking-[0.3em] font-black rounded-full hover:bg-[#151613] transition-all duration-500 shadow-xl shadow-[#004F39]/20"
                     >
                       Order this Flavour
                     </button>
                     <button 
                       onClick={reset}
-                      className="w-full py-5 border border-[#004F39] text-[#004F39] text-[10px] uppercase tracking-[0.3em] font-bold rounded-full hover:bg-[#004F39] hover:text-white transition-all duration-500"
+                      className="w-full py-5 border border-[#004F39] text-[#004F39] text-[10px] uppercase tracking-[0.3em] font-black rounded-full hover:bg-[#004F39] hover:text-white transition-all duration-500"
                     >
                       Retake Quiz
                     </button>

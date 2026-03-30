@@ -81,7 +81,7 @@ export const NarrativeScroll = () => {
         <motion.h2 
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          className="text-[10px] uppercase tracking-[0.8em] font-bold text-[#333333]/40"
+          className="text-[10px] uppercase tracking-[0.8em] font-black text-[#333333]/60"
         >
           Narrative Scroll
         </motion.h2>
@@ -93,7 +93,7 @@ export const NarrativeScroll = () => {
           <motion.span 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 0.5 }}
-            className="text-[8px] uppercase tracking-[0.5em] font-bold text-[#B89B5E] mb-4 block"
+            className="text-[8px] uppercase tracking-[0.5em] font-black text-[#B89B5E] mb-4 block"
           >
             Chapter I
           </motion.span>
@@ -102,7 +102,7 @@ export const NarrativeScroll = () => {
             whileInView={{ filter: "blur(0px)", opacity: 1 }}
             viewport={{ once: false, amount: 0.8 }}
             transition={{ duration: 2, ease: "easeOut" }}
-            className="text-5xl md:text-8xl lg:text-9xl font-serif text-[#333333] tracking-tighter uppercase"
+            className="text-5xl md:text-8xl lg:text-9xl font-serif font-black text-[#333333] tracking-tighter uppercase"
           >
             The <span className="italic text-[#B89B5E]">Alchemy</span>
           </motion.h2>
@@ -110,7 +110,7 @@ export const NarrativeScroll = () => {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 0.4, y: 0 }}
             transition={{ delay: 1, duration: 1 }}
-            className="mt-6 text-[10px] md:text-xs uppercase tracking-[0.8em] font-bold text-[#333333]"
+            className="mt-6 text-[10px] md:text-xs uppercase tracking-[0.8em] font-black text-[#333333]"
           >
             Where raw elements transform
           </motion.p>
@@ -122,7 +122,7 @@ export const NarrativeScroll = () => {
           transition={{ duration: 2, repeat: Infinity }}
           className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[#B89B5E]/40"
         >
-          <span className="text-[8px] uppercase tracking-[0.4em] font-bold">Scroll to Begin</span>
+          <span className="text-[8px] uppercase tracking-[0.4em] font-black">Scroll to Begin</span>
           <ChevronDown size={16} />
         </motion.div>
       </Chapter>
@@ -133,7 +133,7 @@ export const NarrativeScroll = () => {
           <motion.span 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 0.5 }}
-            className="text-[8px] uppercase tracking-[0.5em] font-bold text-[#B89B5E] mb-4 block"
+            className="text-[8px] uppercase tracking-[0.5em] font-black text-[#B89B5E] mb-4 block"
           >
             Chapter II
           </motion.span>
@@ -150,7 +150,7 @@ export const NarrativeScroll = () => {
                 }
               }
             }}
-            className="text-5xl md:text-8xl lg:text-9xl font-serif text-[#333333] tracking-tighter uppercase flex flex-wrap justify-center gap-x-4 md:gap-x-8"
+            className="text-5xl md:text-8xl lg:text-9xl font-serif font-black text-[#333333] tracking-tighter uppercase flex flex-wrap justify-center gap-x-4 md:gap-x-8"
           >
             <span className="flex">
               {["T", "H", "E"].map((char, i) => (
@@ -183,7 +183,7 @@ export const NarrativeScroll = () => {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 0.4, y: 0 }}
             transition={{ delay: 1.5, duration: 1 }}
-            className="mt-6 text-[10px] md:text-xs uppercase tracking-[0.8em] font-bold text-[#333333]"
+            className="mt-6 text-[10px] md:text-xs uppercase tracking-[0.8em] font-black text-[#333333]"
           >
             Precision in every movement
           </motion.p>
@@ -196,7 +196,7 @@ export const NarrativeScroll = () => {
           <motion.span 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 0.5 }}
-            className="text-[8px] uppercase tracking-[0.5em] font-bold text-[#B89B5E] mb-4 block"
+            className="text-[8px] uppercase tracking-[0.5em] font-black text-[#B89B5E] mb-4 block"
           >
             Chapter III
           </motion.span>
@@ -206,14 +206,14 @@ export const NarrativeScroll = () => {
             viewport={{ once: false, amount: 0.8 }}
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
           >
-            <h2 className="text-5xl md:text-8xl lg:text-9xl font-serif text-[#333333] tracking-tighter uppercase">
+            <h2 className="text-5xl md:text-8xl lg:text-9xl font-serif font-black text-[#333333] tracking-tighter uppercase">
               The <span className="italic text-[#B89B5E]">Masterpiece</span>
             </h2>
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 0.4, y: 0 }}
               transition={{ delay: 0.8, duration: 1 }}
-              className="mt-6 text-[10px] md:text-xs uppercase tracking-[0.8em] font-bold text-[#333333]"
+              className="mt-6 text-[10px] md:text-xs uppercase tracking-[0.8em] font-black text-[#333333]"
             >
               The final reveal awaits
             </motion.p>

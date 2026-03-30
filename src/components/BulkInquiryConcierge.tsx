@@ -84,7 +84,7 @@ ACTION: Please verify availability and calculate delivery.`;
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => setIsOpen(true)}
-        className="px-8 py-4 bg-luxury-forest text-luxury-cream rounded-full font-sans font-bold text-xs tracking-[0.3em] uppercase border border-luxury-gold/30 shadow-xl flex items-center gap-3 group"
+        className="px-8 py-4 bg-luxury-forest text-luxury-cream rounded-full font-sans font-black text-xs tracking-[0.3em] uppercase border border-luxury-gold/30 shadow-xl flex items-center gap-3 group"
       >
         <Sparkles size={16} className="text-luxury-gold group-hover:rotate-12 transition-transform" />
         Request Bespoke Bulk Quote
@@ -114,10 +114,10 @@ ACTION: Please verify availability and calculate delivery.`;
                 {/* Header */}
                 <div className="flex justify-between items-start">
                   <div className="space-y-1">
-                    <h2 className="text-3xl md:text-4xl font-display text-luxury-forest tracking-tight">
+                    <h2 className="text-3xl md:text-4xl font-display font-black text-luxury-forest tracking-tight">
                       Event <span className="italic text-luxury-gold">Concierge</span>
                     </h2>
-                    <p className="text-[10px] uppercase tracking-[0.3em] text-luxury-forest/40 font-bold">
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-luxury-forest/40 font-black">
                       Bespoke Bulk Inquiries
                     </p>
                   </div>
@@ -145,19 +145,19 @@ ACTION: Please verify availability and calculate delivery.`;
                 >
                   {/* Name Input */}
                   <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-[0.2em] text-luxury-forest/60 font-bold">Name</label>
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-luxury-forest/60 font-black">Name</label>
                     <input 
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="YOUR FULL NAME"
-                      className="w-full bg-luxury-forest/5 border border-luxury-forest/10 rounded-2xl py-4 px-6 text-sm font-sans text-luxury-forest focus:outline-none focus:border-luxury-gold/50 transition-all placeholder:text-luxury-forest/20"
+                      className="w-full bg-luxury-forest/5 border border-luxury-forest/10 rounded-2xl py-4 px-6 text-sm font-sans font-black text-luxury-forest focus:outline-none focus:border-luxury-gold/50 transition-all placeholder:text-luxury-forest/20"
                     />
                   </motion.div>
 
                   {/* Quantity Counter */}
                   <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-[0.2em] text-luxury-forest/60 font-bold">Quantity</label>
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-luxury-forest/60 font-black">Quantity</label>
                     <div className="flex items-center justify-between bg-luxury-forest/5 p-2 rounded-2xl border border-luxury-forest/10">
                       <button 
                         onClick={() => setQuantity(Math.max(10, quantity - 5))}
@@ -165,7 +165,7 @@ ACTION: Please verify availability and calculate delivery.`;
                       >
                         <Minus size={20} />
                       </button>
-                      <span className="text-2xl font-display text-luxury-forest">{quantity}</span>
+                      <span className="text-2xl font-display font-black text-luxury-forest">{quantity}</span>
                       <button 
                         onClick={() => setQuantity(quantity + 5)}
                         className="w-12 h-12 rounded-xl bg-luxury-forest text-luxury-cream flex items-center justify-center hover:bg-luxury-forest/90 transition-colors"
@@ -177,24 +177,24 @@ ACTION: Please verify availability and calculate delivery.`;
 
                   {/* Product Input */}
                   <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-[0.2em] text-luxury-forest/60 font-bold">Product</label>
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-luxury-forest/60 font-black">Product</label>
                     <input 
                       type="text"
                       value={product}
                       onChange={(e) => setProduct(e.target.value)}
                       placeholder="PRODUCT NAME"
-                      className="w-full bg-luxury-forest/5 border border-luxury-forest/10 rounded-2xl py-4 px-6 text-sm font-sans text-luxury-forest focus:outline-none focus:border-luxury-gold/50 transition-all placeholder:text-luxury-forest/20"
+                      className="w-full bg-luxury-forest/5 border border-luxury-forest/10 rounded-2xl py-4 px-6 text-sm font-sans font-black text-luxury-forest focus:outline-none focus:border-luxury-gold/50 transition-all placeholder:text-luxury-forest/20"
                     />
                   </motion.div>
 
                   {/* Address Textarea */}
                   <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <label className="text-[10px] uppercase tracking-[0.2em] text-luxury-forest/60 font-bold">Address</label>
+                      <label className="text-[10px] uppercase tracking-[0.2em] text-luxury-forest/60 font-black">Address</label>
                       <button 
                         onClick={detectLocation}
                         disabled={isDetecting}
-                        className="flex items-center gap-2 text-[8px] uppercase tracking-widest font-bold text-luxury-gold hover:text-luxury-forest transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 text-[8px] uppercase tracking-widest font-black text-luxury-gold hover:text-luxury-forest transition-colors disabled:opacity-50"
                       >
                         <Navigation size={10} className={isDetecting ? "animate-spin" : ""} />
                         {isDetecting ? "Detecting..." : "Detect Location"}
@@ -207,7 +207,7 @@ ACTION: Please verify availability and calculate delivery.`;
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
                         placeholder="STREET, AREA, CITY"
-                        className="w-full bg-luxury-forest/5 border border-luxury-forest/10 rounded-2xl py-4 pl-12 pr-4 text-sm font-sans text-luxury-forest focus:outline-none focus:border-luxury-gold/50 transition-all resize-none placeholder:text-luxury-forest/20"
+                        className="w-full bg-luxury-forest/5 border border-luxury-forest/10 rounded-2xl py-4 pl-12 pr-4 text-sm font-sans font-black text-luxury-forest focus:outline-none focus:border-luxury-gold/50 transition-all resize-none placeholder:text-luxury-forest/20"
                       />
                     </div>
                   </motion.div>
@@ -217,7 +217,7 @@ ACTION: Please verify availability and calculate delivery.`;
                     variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
                     whileTap={{ scale: 0.95 }}
                     onClick={generateWhatsAppMessage}
-                    className="w-full py-5 bg-luxury-forest text-luxury-cream rounded-2xl font-sans font-bold text-xs tracking-[0.4em] uppercase relative overflow-hidden group shadow-2xl shadow-luxury-forest/30"
+                    className="w-full py-5 bg-luxury-forest text-luxury-cream rounded-2xl font-sans font-black text-xs tracking-[0.4em] uppercase relative overflow-hidden group shadow-2xl shadow-luxury-forest/30"
                   >
                     {/* Shimmer Effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-luxury-gold/20 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
