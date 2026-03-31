@@ -256,7 +256,7 @@ const FloatingIngredients = () => {
 
 // --- 3D Components ---
 
-const CakeModel = ({ color, customName, activeToppings, shape = 'Round' }: { color: string, customName: string, activeToppings: string[], shape?: string }) => {
+const CakeModel = ({ color, customName, activeToppings, shape = 'Round', tiers = 1 }: { color: string, customName: string, activeToppings: string[], shape?: string, tiers?: number }) => {
   const cakeRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
@@ -310,16 +310,18 @@ const CakeModel = ({ color, customName, activeToppings, shape = 'Round' }: { col
     );
   };
 
+  const topY = tiers * 0.8;
+
   return (
     <group ref={cakeRef} position={[0, -0.5, 0]}>
       <Float speed={1.5} rotationIntensity={0.1} floatIntensity={0.3}>
         {/* Tiers */}
         <Tier position={[0, 0, 0]} radius={1.5} height={0.8} />
-        <Tier position={[0, 0.8, 0]} radius={1.1} height={0.8} />
-        <Tier position={[0, 1.6, 0]} radius={0.7} height={0.8} />
+        {tiers >= 2 && <Tier position={[0, 0.8, 0]} radius={1.1} height={0.8} />}
+        {tiers >= 3 && <Tier position={[0, 1.6, 0]} radius={0.7} height={0.8} />}
 
         {/* Toppings */}
-        <group position={[0, 2.0, 0]}>
+        <group position={[0, topY - 0.4, 0]}>
           {activeToppings.includes('Macarons') && (
             <group>
               {[0, 1, 2, 3].map((i) => (
@@ -411,7 +413,7 @@ const CakeModel = ({ color, customName, activeToppings, shape = 'Round' }: { col
         </group>
 
         {/* Nameplate on Cake */}
-        <group position={[0, 1.2, 1.15]} rotation={[-0.1, 0, 0]}>
+        <group position={[0, 0, 1.55]} rotation={[-0.1, 0, 0]}>
           <mesh castShadow>
             <boxGeometry args={[0.8, 0.3, 0.02]} />
             <meshStandardMaterial color="#F5F5DC" roughness={0.3} metalness={0.1} />
@@ -455,6 +457,7 @@ const BespokeStudio = () => {
   const [customName, setCustomName] = useState('IVAAN');
   const [size, setSize] = useState('0.5kg');
   const [shape, setShape] = useState('Round');
+  const [tiers, setTiers] = useState(1);
 
   const handleOrder = () => {
     sendSweetstoryOrder('bespoke', {
@@ -462,7 +465,8 @@ const BespokeStudio = () => {
       toppings: toppings,
       size: size,
       customName: customName,
-      shape: shape
+      shape: shape,
+      tiers: tiers
     });
   };
 
@@ -473,6 +477,7 @@ const BespokeStudio = () => {
       { name: 'Belgian Truffle', price: 3500, color: '#3D2B1F', accent: '#004F39' },
       { name: 'Champagne Sparkle', price: 4200, color: '#F7E7CE', accent: '#B89B5E' },
       { name: 'Saffron Pistachio', price: 4000, color: '#E9D66B', accent: '#004F39' },
+      { name: 'Rose', price: 3900, color: '#FFC0CB', accent: '#004F39' },
     ],
     Classic: [
       { name: 'Chocolate', price: 1800, color: '#3D2B1F', accent: '#004F39' },
@@ -504,7 +509,7 @@ const BespokeStudio = () => {
       <div className="max-w-7xl w-full flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
         
         {/* Left: 3D Stage */}
-        <div className="relative flex flex-col items-center justify-center h-[500px] sm:h-[600px] lg:h-[800px] w-full bg-[#151613]/5 rounded-[2rem] md:rounded-[3.5rem] backdrop-blur-md border border-[#B89B5E]/20 shadow-2xl overflow-visible order-2 lg:order-1">
+        <div className="relative flex flex-col items-center justify-center h-[500px] sm:h-[600px] lg:h-[800px] w-full bg-[#151613]/5 rounded-[2rem] md:rounded-[3.5rem] backdrop-blur-md border border-[#B89B5E]/20 shadow-2xl overflow-visible order-1 lg:order-1">
           <Canvas 
             shadows 
             dpr={[1, 2]}
@@ -527,7 +532,7 @@ const BespokeStudio = () => {
               <pointLight position={[-10, 10, -10]} intensity={2} />
               <directionalLight position={[5, 5, 5]} intensity={1.5} />
               
-              <CakeModel color={currentFlavor.color} customName={customName} activeToppings={toppings} shape={shape} />
+              <CakeModel color={currentFlavor.color} customName={customName} activeToppings={toppings} shape={shape} tiers={tiers} />
               
               <ContactShadows position={[0, -2.5, 0]} opacity={0.7} scale={15} blur={3} far={5} />
             </React.Suspense>
@@ -546,7 +551,7 @@ const BespokeStudio = () => {
         </div>
 
         {/* Right: UI Panel */}
-        <div className="text-[#151613] space-y-8 lg:space-y-12 w-full order-1 lg:order-2">
+        <div className="text-[#151613] space-y-8 lg:space-y-12 w-full order-2 lg:order-2">
           <div className="space-y-3">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
@@ -561,27 +566,51 @@ const BespokeStudio = () => {
           </div>
 
           <div className="space-y-10">
-            {/* Moving Palette - Shape & Flavor */}
+            {/* Moving Palette - Shape, Tier & Flavor */}
             <div className="space-y-8">
-              <div className="space-y-4">
-                <h3 className="text-[11px] uppercase tracking-[0.5em] text-[#004F39] font-black flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#B89B5E]" />
-                  Geometric Foundation
-                </h3>
-                <div className="flex flex-wrap gap-3">
-                  {['Round', 'Square', 'Heart'].map(s => (
-                    <button 
-                      key={s}
-                      onClick={() => setShape(s)}
-                      className={`px-8 py-4 rounded-full text-[11px] uppercase tracking-widest font-black border-2 transition-all duration-500 ${
-                        shape === s 
-                          ? 'bg-[#004F39] text-white border-[#004F39] shadow-2xl shadow-[#004F39]/40' 
-                          : 'bg-white/60 border-[#B89B5E]/20 text-[#151613] hover:bg-white/80 hover:border-[#B89B5E]/40'
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <h3 className="text-[11px] uppercase tracking-[0.5em] text-[#004F39] font-black flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#B89B5E]" />
+                    Geometric Foundation
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
+                    {['Round', 'Square', 'Heart'].map(s => (
+                      <button 
+                        key={s}
+                        onClick={() => setShape(s)}
+                        className={`px-6 py-4 rounded-full text-[10px] uppercase tracking-widest font-black border-2 transition-all duration-500 ${
+                          shape === s 
+                            ? 'bg-[#004F39] text-white border-[#004F39] shadow-2xl shadow-[#004F39]/40' 
+                            : 'bg-white/60 border-[#B89B5E]/20 text-[#151613] hover:bg-white/80 hover:border-[#B89B5E]/40'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-[11px] uppercase tracking-[0.5em] text-[#004F39] font-black flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#B89B5E]" />
+                    Tier Selection
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
+                    {[1, 2, 3].map(t => (
+                      <button 
+                        key={t}
+                        onClick={() => setTiers(t)}
+                        className={`px-8 py-4 rounded-full text-[10px] uppercase tracking-widest font-black border-2 transition-all duration-500 ${
+                          tiers === t 
+                            ? 'bg-[#004F39] text-white border-[#004F39] shadow-2xl shadow-[#004F39]/40' 
+                            : 'bg-white/60 border-[#B89B5E]/20 text-[#151613] hover:bg-white/80 hover:border-[#B89B5E]/40'
+                        }`}
+                      >
+                        {t} {t === 1 ? 'Tier' : 'Tiers'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -666,13 +695,13 @@ const BespokeStudio = () => {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h3 className="text-[11px] uppercase tracking-[0.5em] text-[#004F39] font-black">Size</h3>
-                    <div className="flex gap-2">
-                      {['0.5kg', '1kg', '2kg'].map(s => (
+                    <h3 className="text-[11px] uppercase tracking-[0.5em] text-[#004F39] font-black">Weight Options</h3>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['0.5kg', '1kg', '2kg', '3kg', '4kg', '5kg'].map(s => (
                         <button 
                           key={s}
                           onClick={() => setSize(s)}
-                          className={`flex-1 py-4 rounded-2xl text-[11px] uppercase tracking-widest font-black border-2 transition-all duration-500 ${
+                          className={`py-4 rounded-2xl text-[10px] uppercase tracking-widest font-black border-2 transition-all duration-500 ${
                             size === s 
                               ? 'bg-[#004F39] text-white border-[#004F39]' 
                               : 'bg-white/60 border-[#B89B5E]/20 text-[#151613] hover:bg-white/80'
@@ -706,6 +735,8 @@ const BespokeStudio = () => {
                     <p className="text-3xl md:text-4xl font-serif italic text-charcoal font-black">{flavor}</p>
                     <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.3em] text-[#151613] font-black">
                       <span>{shape}</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#B89B5E]" />
+                      <span>{tiers} {tiers === 1 ? 'Tier' : 'Tiers'}</span>
                       <span className="w-1.5 h-1.5 rounded-full bg-[#B89B5E]" />
                       <span>{size}</span>
                     </div>
