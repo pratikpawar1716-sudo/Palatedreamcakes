@@ -1,94 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import { GoogleGenAI } from "@google/genai";
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-
-const getAiClient = () => {
-  let apiKey = '';
-  try {
-    // @ts-ignore
-    apiKey = (typeof process !== 'undefined' && process.env && process.env.GEMINI_API_KEY) || '';
-  } catch (e) {
-    apiKey = '';
-  }
-  return new GoogleGenAI({ apiKey });
-};
+import { useStore } from '../context/StoreContext';
+import { GoogleGenAI } from "@google/genai";
+import { Loader2 } from 'lucide-react';
 
 export const GeneratedHeroImage = () => {
-  const [imageUrl, setImageUrl] = useState<string | null>(localStorage.getItem('hero-cake-editorial-v2'));
-  const [isAiGenerated, setIsAiGenerated] = useState(!!localStorage.getItem('hero-cake-editorial-v2'));
+  const { heroImage, setHeroImage } = useStore();
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // High-quality editorial masterpiece fallback for instant first-load
   const fallbackUrl = "https://images.unsplash.com/photo-1535141192574-5d4897c12636?q=80&w=1920&auto=format&fit=crop";
 
   useEffect(() => {
-    if (isAiGenerated) return;
-
-    const generate = async () => {
-      try {
-        let apiKey = '';
+    if (!heroImage) {
+      const generateInitialHero = async () => {
+        setIsGenerating(true);
         try {
-          // @ts-ignore
-          apiKey = (typeof process !== 'undefined' && process.env && process.env.GEMINI_API_KEY) || '';
-        } catch (e) {
-          apiKey = '';
-        }
+          const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+          const prompt = "A hyper-realistic, ultra-luxury 3-tier wedding cake with intricate gold leaf detailing, white orchids, and a minimalist marble background, cinematic lighting, 8k resolution, professional food photography";
+          
+          const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: {
+              parts: [{ text: prompt }],
+            },
+            config: {
+              imageConfig: {
+                aspectRatio: "9:16"
+              }
+            }
+          });
 
-        if (!apiKey || apiKey === 'undefined') {
-          console.warn('GEMINI_API_KEY is missing or invalid. Using fallback image.');
-          return;
-        }
-
-        const ai = getAiClient();
-        const prompt = `A full-bleed, high-resolution editorial photograph of a multi-tiered luxury cake. 
-        The cake is a 3-tier masterpiece with a smooth cream-colored fondant base. 
-        It features extremely intricate, hand-painted artisanal patterns inspired by regal tapestries and fine porcelain. 
-        The patterns include symmetrical floral and geometric motifs in deep burgundy, midnight blue, and shimmering gold. 
-        The cake is adorned with a few delicate, hand-crafted sugar flowers in soft pink and cream. 
-        The setting is a soft-focus, moody studio background with cinematic lighting that highlights the textures and gold detailing. 
-        The overall aesthetic is "Quiet Luxury" and highly sophisticated. 
-        8k resolution, professional food photography.`;
-
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash-image',
-          contents: {
-            parts: [{ text: prompt }],
-          },
-          config: {
-            imageConfig: {
-              aspectRatio: "9:16"
+          for (const part of response.candidates[0].content.parts) {
+            if (part.inlineData) {
+              const base64EncodeString = part.inlineData.data;
+              const imageUrl = `data:image/png;base64,${base64EncodeString}`;
+              setHeroImage(imageUrl);
+              break;
             }
           }
-        });
-
-        for (const part of response.candidates[0].content.parts) {
-          if (part.inlineData) {
-            const base64 = part.inlineData.data;
-            const url = `data:image/jpeg;base64,${base64}`;
-            setImageUrl(url);
-            setIsAiGenerated(true);
-            try {
-              localStorage.setItem('hero-cake-editorial-v2', url);
-            } catch (e) {
-              console.warn('LocalStorage might be full');
-            }
-          }
+        } catch (err) {
+          console.error("Initial hero generation failed:", err);
+        } finally {
+          setIsGenerating(false);
         }
-      } catch (error) {
-        console.error('Error generating image:', error);
-      }
-    };
+      };
 
-    generate();
-  }, [isAiGenerated]);
+      generateInitialHero();
+    }
+  }, [heroImage, setHeroImage]);
 
   return (
-    <div className="w-full h-full relative bg-[#F9F7F4]">
+    <div className="w-full h-full relative bg-[#F9F7F4] flex items-center justify-center">
+      {isGenerating && !heroImage && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#FFFACA] gap-4">
+          <Loader2 className="w-8 h-8 animate-spin text-[#004F39]" />
+          <p className="text-[10px] uppercase tracking-[0.4em] text-[#004F39] font-black animate-pulse">Manifesting AI Masterpiece...</p>
+        </div>
+      )}
+      
       <motion.img 
-        key={imageUrl || fallbackUrl}
+        key={heroImage || fallbackUrl}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1, ease: "easeOut" }}
-        src={imageUrl || fallbackUrl} 
+        src={heroImage || fallbackUrl} 
         alt="THE LUXURY CAKE STUDIO Hero Masterpiece" 
         className="w-full h-full object-cover"
         referrerPolicy="no-referrer"

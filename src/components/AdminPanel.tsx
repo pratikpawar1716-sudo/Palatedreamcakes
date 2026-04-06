@@ -1,27 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Lock, Edit2, Check, X, Eye, EyeOff, LogOut, Package, TrendingUp, DollarSign, Search, Sparkles, LayoutDashboard, ClipboardList, RefreshCw, Clock, CheckCircle2, Cake } from 'lucide-react';
+import { Lock, Edit2, Check, X, Eye, EyeOff, LogOut, Package, TrendingUp, DollarSign, Search, Sparkles, LayoutDashboard, ClipboardList, RefreshCw, Clock, CheckCircle2, Cake, Plus, Image as ImageIcon, Trash2, Wand2, Loader2 } from 'lucide-react';
 import Papa from 'papaparse';
-import { products as initialProducts, Product } from '../data/products';
+import { Product } from '../data/products';
 import { Order, OrderStatus, orderDatabase as localOrders } from '../data/orders';
+import { useStore } from '../context/StoreContext';
+import { GoogleGenAI } from "@google/genai";
 
 const ADMIN_PASSWORD = "1818";
 const GOOGLE_SHEET_URL = import.meta.env.VITE_GOOGLE_SHEET_CSV_URL;
 
-type AdminTab = 'dashboard' | 'inventory' | 'orders';
+type AdminTab = 'dashboard' | 'inventory' | 'orders' | 'hero' | 'settings';
 
 export const AdminPanel = ({ onExit }: { onExit: () => void }) => {
+  const { products, heroImage, setHeroImage, heroHeadline, setHeroHeadline, heroSubheadline, setHeroSubheadline, addProduct, updateProduct, deleteProduct } = useStore();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   
   // Inventory State
-  const [products, setProducts] = useState<Product[]>(initialProducts);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editPrice, setEditPrice] = useState<number>(0);
-  const [editShortcode, setEditShortcode] = useState<string>("");
+  const [editForm, setEditForm] = useState<Partial<Product>>({});
+  const [isAdding, setIsAdding] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Hero State
+  const [heroPrompt, setHeroPrompt] = useState("A hyper-realistic, ultra-luxury 3-tier wedding cake with intricate gold leaf detailing, white orchids, and a minimalist marble background, cinematic lighting, 8k resolution, professional food photography");
+  const [isGeneratingHero, setIsGeneratingHero] = useState(false);
 
   // Orders State
   const [orders, setOrders] = useState<Order[]>(localOrders);
@@ -87,23 +93,66 @@ export const AdminPanel = ({ onExit }: { onExit: () => void }) => {
     }
   };
 
-  const toggleAvailability = (id: string) => {
-    setProducts(prev => prev.map(p => 
-      p.id === id ? { ...p, priority: !p.priority } : p
-    ));
-  };
-
   const startEditing = (product: Product) => {
     setEditingId(product.id);
-    setEditPrice(product.price);
-    setEditShortcode(product.shortcode || "");
+    setEditForm(product);
   };
 
-  const saveProduct = (id: string) => {
-    setProducts(prev => prev.map(p => 
-      p.id === id ? { ...p, price: editPrice, shortcode: editShortcode } : p
-    ));
-    setEditingId(null);
+  const handleSaveProduct = () => {
+    if (editingId && editForm) {
+      updateProduct(editingId, editForm);
+      setEditingId(null);
+      setEditForm({});
+    }
+  };
+
+  const handleAddProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    addProduct({
+      name: formData.get('name') as string,
+      price: Number(formData.get('price')),
+      category: formData.get('category') as string,
+      description: formData.get('description') as string,
+      images: [(formData.get('image') as string) || 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80'],
+      shortcode: formData.get('shortcode') as string
+    });
+    
+    setIsAdding(false);
+  };
+
+  const generateHeroImage = async () => {
+    setIsGeneratingHero(true);
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-image',
+        contents: {
+          parts: [{ text: heroPrompt }],
+        },
+        config: {
+          imageConfig: {
+            aspectRatio: "16:9"
+          }
+        }
+      });
+
+      for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) {
+          const base64EncodeString = part.inlineData.data;
+          const imageUrl = `data:image/png;base64,${base64EncodeString}`;
+          setHeroImage(imageUrl);
+          break;
+        }
+      }
+    } catch (err) {
+      console.error("Hero generation failed:", err);
+      alert("Failed to generate image. Please check your API key and try again.");
+    } finally {
+      setIsGeneratingHero(false);
+    }
   };
 
   const filteredProducts = products.filter(p => 
@@ -165,16 +214,18 @@ export const AdminPanel = ({ onExit }: { onExit: () => void }) => {
             </div>
           </div>
 
-          <div className="flex bg-[#151613]/5 p-1 rounded-full">
+          <div className="flex bg-[#151613]/5 p-1 rounded-full overflow-x-auto max-w-full">
             {[
               { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
               { id: 'orders', label: 'Work Manager', icon: ClipboardList },
               { id: 'inventory', label: 'Inventory', icon: Package },
+              { id: 'hero', label: 'Hero Design', icon: Wand2 },
+              { id: 'settings', label: 'Site Settings', icon: Sparkles },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as AdminTab)}
-                className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all ${
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all whitespace-nowrap ${
                   activeTab === tab.id 
                     ? 'bg-white text-[#004F39] shadow-sm' 
                     : 'text-[#151613]/40 hover:text-[#151613]'
@@ -377,119 +428,311 @@ export const AdminPanel = ({ onExit }: { onExit: () => void }) => {
         )}
 
         {activeTab === 'inventory' && (
-          <div className="bg-white rounded-[3rem] shadow-sm border border-black/5 overflow-hidden">
-            <div className="p-10 border-b border-black/5 flex flex-col md:flex-row justify-between items-center gap-6">
-              <h2 className="text-3xl font-serif">Live Inventory</h2>
-              <div className="relative w-full md:w-96">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#151613]/30" size={18} />
-                <input 
-                  type="text" 
-                  placeholder="Search products or categories..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-[#151613]/5 border-none rounded-full py-4 pl-14 pr-8 text-sm focus:ring-2 focus:ring-[#004F39]/20 outline-none"
-                />
+          <div className="space-y-8">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+              <h2 className="text-4xl font-serif">Live Inventory</h2>
+              <div className="flex items-center gap-4 w-full md:w-auto">
+                <div className="relative flex-1 md:w-80">
+                  <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#151613]/30" size={18} />
+                  <input 
+                    type="text" 
+                    placeholder="Search products..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full bg-white border border-black/5 rounded-full py-4 pl-14 pr-8 text-sm focus:ring-2 focus:ring-[#004F39]/20 outline-none shadow-sm"
+                  />
+                </div>
+                <button 
+                  onClick={() => setIsAdding(true)}
+                  className="flex items-center gap-2 px-8 py-4 bg-[#004F39] text-white rounded-full text-[10px] uppercase tracking-widest font-bold hover:bg-[#151613] transition-all shadow-lg shadow-[#004F39]/20"
+                >
+                  <Plus size={16} /> Add Product
+                </button>
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="bg-[#151613]/5 text-[10px] uppercase tracking-[0.2em] font-bold text-[#151613]/50">
-                    <th className="px-10 py-6">Product</th>
-                    <th className="px-10 py-6">Category</th>
-                    <th className="px-10 py-6">Price</th>
-                    <th className="px-10 py-6">Insta Link</th>
-                    <th className="px-10 py-6">Status</th>
-                    <th className="px-10 py-6 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#151613]/5">
-                  {filteredProducts.map((product) => (
-                    <tr key={product.id} className="hover:bg-[#151613]/[0.02] transition-colors">
-                      <td className="px-10 py-8">
-                        <div className="flex items-center gap-4">
-                          <img 
-                            src={product.shortcode ? `https://www.instagram.com/p/${product.shortcode}/media/?size=l` : product.images[0]} 
-                            alt="" 
-                            className="w-12 h-12 rounded-xl object-cover" 
-                            referrerPolicy="no-referrer"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              if (product.images && product.images[0] && target.src !== product.images[0]) {
-                                target.src = product.images[0];
-                              }
-                            }}
-                          />
-                          <span className="font-serif text-lg">{product.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-10 py-8">
-                        <span className="text-[10px] uppercase tracking-widest font-bold px-4 py-1.5 bg-[#151613]/5 rounded-full">
-                          {product.category}
-                        </span>
-                      </td>
-                      <td className="px-10 py-8">
-                        {editingId === product.id ? (
-                          <input 
-                            type="number" 
-                            value={editPrice}
-                            onChange={(e) => setEditPrice(Number(e.target.value))}
-                            className="w-24 bg-[#151613]/5 border border-[#004F39] rounded-lg px-3 py-2 text-sm focus:outline-none"
-                          />
-                        ) : (
-                          <span className="font-medium">₹{product.price.toLocaleString('en-IN')}</span>
-                        )}
-                      </td>
-                      <td className="px-10 py-8">
-                        {editingId === product.id ? (
-                          <div className="flex items-center gap-2">
-                            <input 
-                              type="text" 
-                              value={editShortcode}
-                              onChange={(e) => setEditShortcode(e.target.value)}
-                              placeholder="Shortcode"
-                              className="w-32 bg-[#151613]/5 border border-[#004F39] rounded-lg px-3 py-2 text-xs focus:outline-none"
-                            />
-                            <button onClick={() => saveProduct(product.id)} className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg">
-                              <Check size={18} />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-3 group">
-                            <span className="text-[10px] text-[#151613]/40 font-mono">{product.shortcode || "None"}</span>
-                            <button onClick={() => startEditing(product)} className="opacity-0 group-hover:opacity-100 p-1.5 text-[#151613]/30 hover:text-[#004F39] transition-all">
-                              <Edit2 size={14} />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-10 py-8">
-                        <div className={`inline-flex items-center gap-2 text-[9px] uppercase tracking-widest font-bold ${product.priority ? 'text-emerald-500' : 'text-rose'}`}>
-                          <div className={`w-1.5 h-1.5 rounded-full ${product.priority ? 'bg-emerald-500' : 'bg-rose'}`} />
-                          {product.priority ? 'In Stock' : 'Out of Stock'}
-                        </div>
-                      </td>
-                      <td className="px-10 py-8 text-right">
-                        <button 
-                          onClick={() => toggleAvailability(product.id)}
-                          className={`p-3 rounded-xl transition-all ${
-                            product.priority 
-                              ? 'bg-rose/10 text-rose hover:bg-rose hover:text-white' 
-                              : 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white'
-                          }`}
-                        >
-                          {product.priority ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                      </td>
+            <div className="bg-white rounded-[3rem] shadow-sm border border-black/5 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="bg-[#151613]/5 text-[10px] uppercase tracking-[0.2em] font-bold text-[#151613]/50">
+                      <th className="px-10 py-6">Product</th>
+                      <th className="px-10 py-6">Category</th>
+                      <th className="px-10 py-6">Price</th>
+                      <th className="px-10 py-6">Status</th>
+                      <th className="px-10 py-6 text-right">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-[#151613]/5">
+                    {filteredProducts.map((product) => (
+                      <tr key={product.id} className="hover:bg-[#151613]/[0.02] transition-colors">
+                        <td className="px-10 py-8">
+                          <div className="flex items-center gap-4">
+                            <img 
+                              src={product.images[0]} 
+                              alt="" 
+                              className="w-12 h-12 rounded-xl object-cover" 
+                              referrerPolicy="no-referrer"
+                            />
+                            <div>
+                              <p className="font-serif text-lg">{product.name}</p>
+                              <p className="text-[9px] text-[#151613]/40 uppercase tracking-widest font-bold">{product.shortcode || 'No Shortcode'}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-10 py-8">
+                          <span className="text-[10px] uppercase tracking-widest font-bold px-4 py-1.5 bg-[#151613]/5 rounded-full">
+                            {product.category}
+                          </span>
+                        </td>
+                        <td className="px-10 py-8">
+                          <span className="font-medium">₹{product.price.toLocaleString('en-IN')}</span>
+                        </td>
+                        <td className="px-10 py-8">
+                          <button 
+                            onClick={() => updateProduct(product.id, { priority: !product.priority })}
+                            className={`inline-flex items-center gap-2 text-[9px] uppercase tracking-widest font-bold ${product.priority ? 'text-emerald-500' : 'text-rose'}`}
+                          >
+                            <div className={`w-1.5 h-1.5 rounded-full ${product.priority ? 'bg-emerald-500' : 'bg-rose'}`} />
+                            {product.priority ? 'In Stock' : 'Out of Stock'}
+                          </button>
+                        </td>
+                        <td className="px-10 py-8 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button 
+                              onClick={() => startEditing(product)}
+                              className="p-3 bg-[#151613]/5 text-[#151613] rounded-xl hover:bg-[#004F39] hover:text-white transition-all"
+                            >
+                              <Edit2 size={18} />
+                            </button>
+                            <button 
+                              onClick={() => {
+                                if(confirm('Are you sure you want to delete this masterpiece?')) {
+                                  deleteProduct(product.id);
+                                }
+                              }}
+                              className="p-3 bg-rose/10 text-rose rounded-xl hover:bg-rose hover:text-white transition-all"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'hero' && (
+          <div className="max-w-4xl mx-auto space-y-12">
+            <div className="text-center space-y-4">
+              <h2 className="text-5xl font-serif">Hero Masterpiece</h2>
+              <p className="text-charcoal/60 font-bold italic">Reimagine your storefront with AI-driven visual storytelling.</p>
+            </div>
+
+            <div className="bg-white rounded-[3rem] p-10 shadow-sm border border-black/5 space-y-10">
+              <div className="aspect-video w-full rounded-[2rem] overflow-hidden bg-cream relative group">
+                <img 
+                  src={heroImage} 
+                  alt="Current Hero" 
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <p className="text-white text-[10px] uppercase tracking-[0.5em] font-black">Current Masterpiece</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-[10px] uppercase tracking-[0.4em] text-[#004F39] font-black flex items-center gap-2">
+                    <Sparkles size={14} /> AI Vision Prompt
+                  </label>
+                  <textarea 
+                    value={heroPrompt}
+                    onChange={(e) => setHeroPrompt(e.target.value)}
+                    className="w-full bg-[#F9F7F4] border-2 border-black/5 rounded-3xl p-8 text-sm focus:outline-none focus:border-[#004F39]/20 transition-all min-h-[150px] font-serif italic"
+                    placeholder="Describe the ultimate luxury cake visual..."
+                  />
+                </div>
+
+                <button 
+                  onClick={generateHeroImage}
+                  disabled={isGeneratingHero}
+                  className="w-full py-7 bg-[#004F39] text-[#FFFACA] text-[12px] uppercase tracking-[0.5em] font-black rounded-3xl hover:bg-[#151613] hover:text-white transition-all duration-700 shadow-2xl shadow-[#004F39]/40 flex items-center justify-center gap-4 disabled:opacity-50"
+                >
+                  {isGeneratingHero ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Manifesting Vision...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-5 h-5" />
+                      Generate AI Masterpiece
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {activeTab === 'settings' && (
+          <div className="max-w-4xl mx-auto space-y-12">
+            <div className="text-center space-y-4">
+              <h2 className="text-5xl font-serif">Site Settings</h2>
+              <p className="text-charcoal/60 font-bold italic">Control the voice and message of your luxury studio.</p>
+            </div>
+
+            <div className="bg-white rounded-[3rem] p-10 shadow-sm border border-black/5 space-y-10">
+              <div className="space-y-8">
+                <div className="space-y-3">
+                  <label className="text-[10px] uppercase tracking-[0.4em] text-[#004F39] font-black">Hero Headline</label>
+                  <input 
+                    type="text"
+                    value={heroHeadline}
+                    onChange={(e) => setHeroHeadline(e.target.value)}
+                    className="w-full bg-[#F9F7F4] border-2 border-black/5 rounded-2xl px-8 py-5 text-xl font-serif focus:outline-none focus:border-[#004F39]/20 transition-all"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[10px] uppercase tracking-[0.4em] text-[#004F39] font-black">Hero Subheadline</label>
+                  <textarea 
+                    value={heroSubheadline}
+                    onChange={(e) => setHeroSubheadline(e.target.value)}
+                    className="w-full bg-[#F9F7F4] border-2 border-black/5 rounded-3xl p-8 text-sm focus:outline-none focus:border-[#004F39]/20 transition-all min-h-[120px] font-bold italic"
+                  />
+                </div>
+
+                <div className="pt-6 border-t border-black/5">
+                  <div className="flex items-center gap-4 p-6 bg-[#004F39]/5 rounded-2xl">
+                    <div className="w-10 h-10 bg-[#004F39] rounded-full flex items-center justify-center text-white">
+                      <Check size={20} />
+                    </div>
+                    <p className="text-xs font-bold text-[#004F39]">Changes are saved automatically to your local business profile.</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
       </main>
+
+      {/* Modals */}
+      <AnimatePresence>
+        {(isAdding || editingId) && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => { setIsAdding(false); setEditingId(null); }}
+              className="absolute inset-0 bg-[#151613]/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-[3rem] p-12 shadow-2xl space-y-10"
+            >
+              <div className="flex justify-between items-center">
+                <h3 className="text-3xl font-serif">{isAdding ? 'Add New Masterpiece' : 'Refine Creation'}</h3>
+                <button onClick={() => { setIsAdding(false); setEditingId(null); }} className="p-2 hover:bg-black/5 rounded-full transition-colors">
+                  <X size={24} />
+                </button>
+              </div>
+
+              <form 
+                onSubmit={(e) => {
+                  if (isAdding) {
+                    handleAddProduct(e);
+                  } else {
+                    e.preventDefault();
+                    handleSaveProduct();
+                  }
+                }} 
+                className="grid grid-cols-2 gap-8"
+              >
+                <div className="space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-40">Product Name</label>
+                  <input 
+                    name="name"
+                    required
+                    value={editForm.name || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full bg-[#F9F7F4] border-none rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-[#004F39]/20 outline-none"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-40">Price (₹)</label>
+                  <input 
+                    name="price"
+                    type="number"
+                    required
+                    value={editForm.price || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, price: Number(e.target.value) }))}
+                    className="w-full bg-[#F9F7F4] border-none rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-[#004F39]/20 outline-none"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-40">Category</label>
+                  <select 
+                    name="category"
+                    required
+                    value={editForm.category || 'Signature'}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
+                    className="w-full bg-[#F9F7F4] border-none rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-[#004F39]/20 outline-none"
+                  >
+                    <option value="Signature">Signature</option>
+                    <option value="Couture">Couture</option>
+                    <option value="Bento">Bento</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-40">Instagram Shortcode</label>
+                  <input 
+                    name="shortcode"
+                    value={editForm.shortcode || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, shortcode: e.target.value }))}
+                    className="w-full bg-[#F9F7F4] border-none rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-[#004F39]/20 outline-none"
+                    placeholder="e.g. C_xY123"
+                  />
+                </div>
+                <div className="col-span-2 space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-40">Image URL</label>
+                  <input 
+                    name="image"
+                    value={editForm.images?.[0] || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, images: [e.target.value] }))}
+                    className="w-full bg-[#F9F7F4] border-none rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-[#004F39]/20 outline-none"
+                    placeholder="https://..."
+                  />
+                </div>
+                <div className="col-span-2 space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-40">Description</label>
+                  <textarea 
+                    name="description"
+                    required
+                    value={editForm.description || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                    className="w-full bg-[#F9F7F4] border-none rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-[#004F39]/20 outline-none min-h-[100px]"
+                  />
+                </div>
+                <button 
+                  type="submit"
+                  className="col-span-2 py-5 bg-[#004F39] text-white text-[10px] uppercase tracking-[0.3em] font-bold rounded-full hover:bg-[#151613] transition-all duration-500"
+                >
+                  {isAdding ? 'Add to Collection' : 'Save Changes'}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

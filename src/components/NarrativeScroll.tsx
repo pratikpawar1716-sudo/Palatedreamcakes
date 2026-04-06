@@ -59,9 +59,15 @@ const Chapter = ({
     </motion.div>
 
     <GoldLeafLine />
-    <div className="relative z-10">
+    <motion.div 
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: false, amount: 0.3 }}
+      transition={{ duration: 1.2, ease: [0.33, 1, 0.68, 1] }}
+      className="relative z-10"
+    >
       {children}
-    </div>
+    </motion.div>
   </section>
 );
 

@@ -7,8 +7,8 @@ import Lenis from 'lenis';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, ContactShadows, Float, Text, Center, Html } from '@react-three/drei';
-import { NarrativeScroll } from './components/NarrativeScroll';
-import { products as initialProducts, Product } from './data/products';
+import { useStore } from './context/StoreContext';
+import { Product } from './data/products';
 import { sendSweetstoryOrder } from './utils/whatsapp';
 import { AdminPanel } from './components/AdminPanel';
 import { TasteProfileQuiz } from './components/TasteProfileQuiz';
@@ -108,10 +108,11 @@ const Navbar = () => {
 };
 
 const Hero = () => {
+  const { heroHeadline, heroSubheadline } = useStore();
   return (
     <section id="hero" className="relative w-full min-h-screen flex flex-col md:flex-row overflow-hidden bg-[#FFFACA] snap-start">
       {/* Left Side: Content (Mobile: Second) */}
-      <div className="order-2 md:order-1 w-full md:w-[55%] flex flex-col justify-center px-8 md:px-24 py-20 md:py-0 bg-[#FFFACA] relative z-10">
+      <div className="order-2 md:order-1 w-full md:w-1/2 flex flex-col justify-center px-8 md:px-24 py-20 md:py-0 bg-[#FFFACA] relative z-10">
         {/* Brand Name */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -133,7 +134,11 @@ const Hero = () => {
             className="text-6xl md:text-8xl lg:text-9xl font-display text-[#151613] leading-[0.9] tracking-tight mb-8 font-black"
             style={{ fontOpticalSizing: 'auto' }}
           >
-            Come, let's create <span className="italic font-serif">your</span> story
+            {heroHeadline.split(' ').map((word, i) => (
+              <span key={i} className={word.toLowerCase() === 'your' ? 'italic font-serif' : ''}>
+                {word}{' '}
+              </span>
+            ))}
           </motion.h1>
 
           {/* Sub-headline */}
@@ -143,7 +148,7 @@ const Hero = () => {
             transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
             className="text-[#151613] text-base md:text-lg font-sans font-bold leading-relaxed mb-12 max-w-md"
           >
-            A culinary sanctuary where art meets flavor, crafting bespoke cakes and confections that define your unique legacy.
+            {heroSubheadline}
           </motion.p>
 
           {/* CTA Button */}
@@ -192,7 +197,7 @@ const Hero = () => {
       </div>
 
       {/* Right Side: Visual (Mobile: First) */}
-      <div className="order-1 md:order-2 w-full md:w-[45%] h-[60vh] md:h-full relative overflow-hidden">
+      <div className="order-1 md:order-2 w-full md:w-1/2 h-[70vh] md:h-screen relative overflow-hidden">
         <GeneratedHeroImage />
         {/* Subtle dark gradient overlay at the bottom for better depth and contrast */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#151613]/60 via-transparent to-transparent pointer-events-none" />
@@ -865,8 +870,9 @@ const ProductCard = ({ product, priority, index }: ProductCardProps) => {
 };
 
 const ArtisanalGrid = () => {
+  const { products } = useStore();
   // Unified grid of all products
-  const sortedProducts = [...initialProducts].sort((a, b) => a.price - b.price);
+  const sortedProducts = [...products].sort((a, b) => a.price - b.price);
 
   return (
     <section id="collection" className="py-32 px-8 bg-cream snap-start">
@@ -911,91 +917,6 @@ const ArtisanalGrid = () => {
           ))}
         </div>
       </div>
-    </section>
-  );
-};
-
-const NarrativeChapter = ({ title, video }: { title: string, video: string, key?: number | string }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  // Extract ID from Google Drive link to ensure direct streaming format
-  const getDirectLink = (url: string) => {
-    const idMatch = url.match(/id=([^&]+)/) || url.match(/\/d\/([^/]+)/);
-    const id = idMatch ? idMatch[1] : '';
-    return id ? `https://drive.google.com/uc?export=download&id=${id}` : url;
-  };
-
-  const directVideoLink = getDirectLink(video);
-
-  const togglePlay = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  return (
-    <div 
-      className="relative h-screen w-full flex items-center justify-center bg-charcoal cursor-pointer group"
-      onClick={togglePlay}
-    >
-      <video 
-        ref={videoRef}
-        muted 
-        loop 
-        playsInline 
-        preload="auto"
-        className="w-full h-full object-cover opacity-60 transition-opacity duration-700 group-hover:opacity-80"
-      >
-        <source src={directVideoLink} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-      
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
-        <motion.h3 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="text-5xl md:text-7xl font-serif italic text-cream mb-4 font-black"
-        >
-          {title}
-        </motion.h3>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isPlaying ? 0 : 1 }}
-          className="text-[10px] uppercase tracking-[0.4em] text-cream/70 font-black"
-        >
-          Tap to Play
-        </motion.div>
-      </div>
-
-      {/* Play/Pause Indicator */}
-      <div className="absolute bottom-12 right-12">
-        <div className="w-12 h-12 rounded-full border border-cream/20 flex items-center justify-center text-cream/40 group-hover:text-cream transition-colors">
-          {isPlaying ? <X size={16} /> : <Plus size={16} className="rotate-45" />}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const VideoNarrative = () => {
-  const chapters = [
-    { title: "The Ingredient", video: "https://drive.google.com/uc?export=download&id=1tbp-luJ4BYManxuZ_ed9X02lfEfDtSDo" },
-    { title: "The Craft", video: "https://drive.google.com/uc?export=download&id=1_PfDHc2m4N1oSSoxtJv8eg5hFWn4kWRP" },
-    { title: "The Masterpiece", video: "https://drive.google.com/uc?export=download&id=16PbzdjfODcAkKslumPxC7LHG7zwY3Sp-" }
-  ];
-
-  return (
-    <section id="story" className="bg-charcoal">
-      {chapters.map((chapter, i) => (
-        <NarrativeChapter key={i} title={chapter.title} video={chapter.video} />
-      ))}
     </section>
   );
 };
@@ -1097,7 +1018,7 @@ const SweetCustoms = () => {
   };
 
   const handleWhatsAppOrder = () => {
-    sendSweetstoryOrder('custom', { description });
+    sendSweetstoryOrder('custom', { description, image });
   };
 
   return (
@@ -1127,10 +1048,10 @@ const SweetCustoms = () => {
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleWhatsAppOrder}
-              disabled={!description}
+              disabled={!description || !image}
               className="w-full py-5 bg-[#004F39] text-white text-[10px] uppercase tracking-[0.2em] font-black rounded-full shadow-xl shadow-[#004F39]/20 hover:bg-[#FFFACA] hover:text-[#151613] transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Place Custom Order via WhatsApp
+              {!image ? 'Upload Reference Image to Proceed' : 'Place Custom Order via WhatsApp'}
             </motion.button>
           </div>
         </div>
@@ -1296,6 +1217,7 @@ const Footer = () => {
 };
 
 export default function App() {
+  const { products } = useStore();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isQuizOpen, setIsQuizOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('All');
@@ -1303,7 +1225,7 @@ export default function App() {
 
   useEffect(() => {
     // Pre-load critical assets for "instant" feel
-    const sorted = [...initialProducts].sort((a, b) => a.price - b.price);
+    const sorted = [...products].sort((a, b) => a.price - b.price);
     sorted.slice(0, 6).forEach(product => {
       const img = new Image();
       img.src = product.images[0];
@@ -1376,8 +1298,6 @@ export default function App() {
 
         <OrderTracker />
 
-        <NarrativeScroll />
-        <VideoNarrative />
         <HappyCustomers />
         <MoodFlavourQuiz />
         <Footer />
