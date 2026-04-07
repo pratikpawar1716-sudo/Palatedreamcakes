@@ -825,7 +825,7 @@ const ProductCard = ({ product, priority, index }: ProductCardProps) => {
           <div className="absolute inset-0 shimmer z-0" />
         )}
         
-        {(isInView || index < 6) && (
+        {(isInView || priority) && (
           <motion.img
             src={currentSrc}
             alt={product.name}
@@ -837,10 +837,10 @@ const ProductCard = ({ product, priority, index }: ProductCardProps) => {
             whileHover={{ scale: 1.08 }}
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
             className={`w-full h-full object-cover transition-opacity duration-700 relative z-10 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-            loading={index < 6 ? "eager" : "lazy"}
+            loading={priority ? "eager" : "lazy"}
             decoding="async"
             // @ts-ignore
-            fetchPriority={index < 6 ? "high" : "low"}
+            fetchPriority={priority ? "high" : "low"}
           />
         )}
       </div>
@@ -911,7 +911,7 @@ const ArtisanalGrid = () => {
             <ProductCard 
               key={product.id} 
               product={product} 
-              priority={true}
+              priority={index < 6}
               index={index}
             />
           ))}
