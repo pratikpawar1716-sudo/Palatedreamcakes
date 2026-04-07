@@ -24,7 +24,7 @@
 
 @layer base {
   body {
-    @apply bg-cream text-charcoal font-sans antialiased font-bold;
+    @apply bg-cream text-charcoal font-sans antialiased font-bold overflow-x-hidden;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif font-black;

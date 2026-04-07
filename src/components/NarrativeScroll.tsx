@@ -40,7 +40,7 @@ const Chapter = ({
   image: string;
   className?: string;
 }) => (
-  <section className={`relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#F5F0E6] snap-start ${className}`}>
+  <section className={`relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#F5F0E6] ${className}`}>
     {/* Background Image with Parallax Effect */}
     <motion.div 
       initial={{ scale: 1.1, opacity: 0 }}

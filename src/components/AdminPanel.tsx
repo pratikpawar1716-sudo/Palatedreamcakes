@@ -10,10 +10,10 @@ import { GoogleGenAI } from "@google/genai";
 const ADMIN_PASSWORD = "1818";
 const GOOGLE_SHEET_URL = import.meta.env.VITE_GOOGLE_SHEET_CSV_URL;
 
-type AdminTab = 'dashboard' | 'inventory' | 'orders' | 'hero' | 'settings';
+type AdminTab = 'dashboard' | 'inventory' | 'orders' | 'hero' | 'bespoke' | 'settings';
 
 export const AdminPanel = ({ onExit }: { onExit: () => void }) => {
-  const { products, heroImage, setHeroImage, heroHeadline, setHeroHeadline, heroSubheadline, setHeroSubheadline, addProduct, updateProduct, deleteProduct } = useStore();
+  const { products, heroImage, setHeroImage, heroHeadline, setHeroHeadline, heroSubheadline, setHeroSubheadline, bespokePricing, setBespokePricing, addProduct, updateProduct, deleteProduct } = useStore();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -34,14 +34,35 @@ export const AdminPanel = ({ onExit }: { onExit: () => void }) => {
   const [isSyncingOrders, setIsSyncingOrders] = useState(false);
   const [lastSynced, setLastSynced] = useState<string | null>(null);
 
+  // Bespoke Pricing Modals
+  const [isAddingFlavor, setIsAddingFlavor] = useState(false);
+  const [isAddingTopping, setIsAddingTopping] = useState(false);
+  const [flavorForm, setFlavorForm] = useState({ name: '', pricePerKg: 0, category: 'Classic' as 'Premium' | 'Classic', color: '#3D2B1F' });
+  const [toppingForm, setToppingForm] = useState({ name: '', price: 0 });
+
   const fetchLiveOrders = async () => {
     if (!GOOGLE_SHEET_URL) return;
     
     setIsSyncingOrders(true);
     try {
-      const response = await fetch(GOOGLE_SHEET_URL);
-      if (!response.ok) throw new Error("Fetch failed");
+      if (!GOOGLE_SHEET_URL.startsWith('http')) {
+        throw new Error("Invalid URL format");
+      }
+
+      const response = await fetch(GOOGLE_SHEET_URL, {
+        method: 'GET',
+        headers: {
+          'Accept': 'text/csv',
+        },
+        cache: 'no-cache'
+      });
+
+      if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
       const csvText = await response.text();
+
+      if (!csvText || csvText.includes('<!DOCTYPE html>')) {
+        throw new Error("Invalid CSV format received");
+      }
       
       Papa.parse(csvText, {
         header: true,
@@ -219,6 +240,7 @@ export const AdminPanel = ({ onExit }: { onExit: () => void }) => {
               { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
               { id: 'orders', label: 'Work Manager', icon: ClipboardList },
               { id: 'inventory', label: 'Inventory', icon: Package },
+              { id: 'bespoke', label: 'Bespoke Pricing', icon: DollarSign },
               { id: 'hero', label: 'Hero Design', icon: Wand2 },
               { id: 'settings', label: 'Site Settings', icon: Sparkles },
             ].map((tab) => (
@@ -526,6 +548,167 @@ export const AdminPanel = ({ onExit }: { onExit: () => void }) => {
           </div>
         )}
 
+        {activeTab === 'bespoke' && (
+          <div className="max-w-5xl mx-auto space-y-12">
+            <div className="flex justify-between items-center">
+              <div className="text-left space-y-1">
+                <h2 className="text-5xl font-serif">Bespoke Studio Pricing</h2>
+                <p className="text-charcoal/60 font-bold italic">Configure the investment tiers for your 3D custom creations.</p>
+              </div>
+              <button 
+                onClick={() => {
+                  if (confirm("Reset all bespoke pricing to studio defaults? This cannot be undone.")) {
+                    localStorage.removeItem('luxury_studio_bespoke_pricing');
+                    window.location.reload();
+                  }
+                }}
+                className="px-6 py-3 bg-rose/10 text-rose rounded-full text-[10px] uppercase tracking-widest font-black hover:bg-rose hover:text-white transition-all"
+              >
+                Reset to Defaults
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Flavor Pricing */}
+              <div className="bg-white rounded-[3rem] p-10 shadow-sm border border-black/5 space-y-8">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-2xl font-serif">Flavors (per kg)</h3>
+                  <button 
+                    onClick={() => setIsAddingFlavor(true)}
+                    className="p-2 bg-[#004F39]/10 text-[#004F39] rounded-full hover:bg-[#004F39] hover:text-white transition-all"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+                
+                <div className="space-y-6">
+                  {Object.entries(bespokePricing.flavors).map(([category, flavors]) => (
+                    <div key={category} className="space-y-4">
+                      <p className="text-[10px] uppercase tracking-widest font-black text-[#004F39]">{category} Collection</p>
+                      <div className="space-y-3">
+                        {flavors.map((f, idx) => (
+                          <div key={f.name} className="flex items-center justify-between bg-[#F9F7F4] p-4 rounded-2xl border border-black/5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: f.color }} />
+                              <span className="text-sm font-medium">{f.name}</span>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <div className="relative">
+                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] opacity-40">₹</span>
+                                <input 
+                                  type="number" 
+                                  value={f.pricePerKg}
+                                  onChange={(e) => {
+                                    const newPricing = { ...bespokePricing };
+                                    newPricing.flavors[category as "Premium" | "Classic"][idx].pricePerKg = Number(e.target.value);
+                                    setBespokePricing(newPricing);
+                                  }}
+                                  className="w-24 bg-white border border-black/10 rounded-lg pl-5 pr-2 py-1 text-xs text-right font-bold"
+                                />
+                              </div>
+                              <button 
+                                onClick={() => {
+                                  if (confirm(`Remove ${f.name}?`)) {
+                                    const newPricing = { ...bespokePricing };
+                                    newPricing.flavors[category as "Premium" | "Classic"].splice(idx, 1);
+                                    setBespokePricing(newPricing);
+                                  }
+                                }}
+                                className="text-rose hover:scale-110 transition-transform"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Toppings & Extras */}
+              <div className="space-y-8">
+                <div className="bg-white rounded-[3rem] p-10 shadow-sm border border-black/5 space-y-8">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-2xl font-serif">Artisanal Toppings</h3>
+                    <button 
+                      onClick={() => setIsAddingTopping(true)}
+                      className="p-2 bg-[#004F39]/10 text-[#004F39] rounded-full hover:bg-[#004F39] hover:text-white transition-all"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                  <div className="space-y-3">
+                    {bespokePricing.toppingOptions.map((t, idx) => (
+                      <div key={t.name} className="flex items-center justify-between bg-[#F9F7F4] p-4 rounded-2xl border border-black/5">
+                        <span className="text-sm font-medium">{t.name}</span>
+                        <div className="flex items-center gap-4">
+                          <div className="relative">
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] opacity-40">₹</span>
+                            <input 
+                              type="number" 
+                              value={t.price}
+                              onChange={(e) => {
+                                const newPricing = { ...bespokePricing };
+                                newPricing.toppingOptions[idx].price = Number(e.target.value);
+                                setBespokePricing(newPricing);
+                              }}
+                              className="w-24 bg-white border border-black/10 rounded-lg pl-5 pr-2 py-1 text-xs text-right font-bold"
+                            />
+                          </div>
+                          <button 
+                            onClick={() => {
+                              if (confirm(`Remove ${t.name}?`)) {
+                                const newPricing = { ...bespokePricing };
+                                newPricing.toppingOptions.splice(idx, 1);
+                                setBespokePricing(newPricing);
+                              }
+                            }}
+                            className="text-rose hover:scale-110 transition-transform"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-[3rem] p-10 shadow-sm border border-black/5 space-y-8">
+                  <h3 className="text-2xl font-serif">Structural Premiums</h3>
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium">Tier Premium</p>
+                        <p className="text-[9px] uppercase tracking-widest opacity-40 font-bold">Per additional tier</p>
+                      </div>
+                      <input 
+                        type="number" 
+                        value={bespokePricing.tierPremium}
+                        onChange={(e) => setBespokePricing({ ...bespokePricing, tierPremium: Number(e.target.value) })}
+                        className="w-24 bg-[#F9F7F4] border border-black/10 rounded-xl px-4 py-2 text-sm text-right font-bold"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium">Shape Premium</p>
+                        <p className="text-[9px] uppercase tracking-widest opacity-40 font-bold">For Square/Heart shapes</p>
+                      </div>
+                      <input 
+                        type="number" 
+                        value={bespokePricing.shapePremium}
+                        onChange={(e) => setBespokePricing({ ...bespokePricing, shapePremium: Number(e.target.value) })}
+                        className="w-24 bg-[#F9F7F4] border border-black/10 rounded-xl px-4 py-2 text-sm text-right font-bold"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'hero' && (
           <div className="max-w-4xl mx-auto space-y-12">
             <div className="text-center space-y-4">
@@ -729,6 +912,158 @@ export const AdminPanel = ({ onExit }: { onExit: () => void }) => {
                   {isAdding ? 'Add to Collection' : 'Save Changes'}
                 </button>
               </form>
+            </motion.div>
+          </div>
+        )}
+        {isAddingTopping && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsAddingTopping(false)}
+              className="absolute inset-0 bg-[#151613]/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-md bg-white rounded-[3rem] p-12 shadow-2xl space-y-8"
+            >
+              <div className="flex justify-between items-center">
+                <h3 className="text-3xl font-serif">Add Topping</h3>
+                <button onClick={() => setIsAddingTopping(false)} className="p-2 hover:bg-black/5 rounded-full transition-colors">
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-40">Topping Name</label>
+                  <input 
+                    value={toppingForm.name}
+                    onChange={(e) => setToppingForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full bg-[#F9F7F4] border-none rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-[#004F39]/20 outline-none"
+                    placeholder="e.g. Edible Pearls"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-40">Price (₹)</label>
+                  <input 
+                    type="number"
+                    value={toppingForm.price}
+                    onChange={(e) => setToppingForm(prev => ({ ...prev, price: Number(e.target.value) }))}
+                    className="w-full bg-[#F9F7F4] border-none rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-[#004F39]/20 outline-none"
+                  />
+                </div>
+                <button 
+                  onClick={() => {
+                    if (toppingForm.name && toppingForm.price > 0) {
+                      const newPricing = { ...bespokePricing };
+                      newPricing.toppingOptions.push({
+                        ...toppingForm,
+                        icon: 'https://images.unsplash.com/photo-1548907040-4baa42d10919?q=80&w=100&auto=format&fit=crop'
+                      });
+                      setBespokePricing(newPricing);
+                      setIsAddingTopping(false);
+                      setToppingForm({ name: '', price: 0 });
+                    }
+                  }}
+                  className="w-full py-5 bg-[#004F39] text-white text-[10px] uppercase tracking-[0.3em] font-bold rounded-full hover:bg-[#151613] transition-all"
+                >
+                  Add Topping
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {isAddingFlavor && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsAddingFlavor(false)}
+              className="absolute inset-0 bg-[#151613]/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-md bg-white rounded-[3rem] p-12 shadow-2xl space-y-8"
+            >
+              <div className="flex justify-between items-center">
+                <h3 className="text-3xl font-serif">Add Flavor</h3>
+                <button onClick={() => setIsAddingFlavor(false)} className="p-2 hover:bg-black/5 rounded-full transition-colors">
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-40">Flavor Name</label>
+                  <input 
+                    value={flavorForm.name}
+                    onChange={(e) => setFlavorForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full bg-[#F9F7F4] border-none rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-[#004F39]/20 outline-none"
+                    placeholder="e.g. Madagascar Vanilla"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-40">Price per kg (₹)</label>
+                  <input 
+                    type="number"
+                    value={flavorForm.pricePerKg}
+                    onChange={(e) => setFlavorForm(prev => ({ ...prev, pricePerKg: Number(e.target.value) }))}
+                    className="w-full bg-[#F9F7F4] border-none rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-[#004F39]/20 outline-none"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-40">Category</label>
+                  <div className="flex gap-2">
+                    {['Classic', 'Premium'].map(cat => (
+                      <button
+                        key={cat}
+                        onClick={() => setFlavorForm(prev => ({ ...prev, category: cat as any }))}
+                        className={`flex-1 py-3 rounded-xl text-[10px] uppercase tracking-widest font-bold border transition-all ${
+                          flavorForm.category === cat 
+                            ? 'bg-[#004F39] text-white border-[#004F39]' 
+                            : 'bg-white text-[#151613] border-black/10'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-40">Visual Color</label>
+                  <input 
+                    type="color"
+                    value={flavorForm.color}
+                    onChange={(e) => setFlavorForm(prev => ({ ...prev, color: e.target.value }))}
+                    className="w-full h-12 bg-transparent border-none cursor-pointer"
+                  />
+                </div>
+                <button 
+                  onClick={() => {
+                    if (flavorForm.name && flavorForm.pricePerKg > 0) {
+                      const newPricing = { ...bespokePricing };
+                      newPricing.flavors[flavorForm.category].push({
+                        ...flavorForm,
+                        accent: '#004F39'
+                      });
+                      setBespokePricing(newPricing);
+                      setIsAddingFlavor(false);
+                      setFlavorForm({ name: '', pricePerKg: 0, category: 'Classic', color: '#3D2B1F' });
+                    }
+                  }}
+                  className="w-full py-5 bg-[#004F39] text-white text-[10px] uppercase tracking-[0.3em] font-bold rounded-full hover:bg-[#151613] transition-all"
+                >
+                  Add Flavor
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

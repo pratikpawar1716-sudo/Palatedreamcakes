@@ -57,8 +57,8 @@ const Navbar = () => {
       className="fixed top-0 left-0 w-full z-[100] px-4 md:px-8 py-6 pointer-events-none"
     >
       <div className={`
-        max-w-7xl mx-auto flex justify-between items-center px-6 py-4 rounded-full transition-all duration-500 pointer-events-auto relative overflow-hidden
-        ${isScrolled ? 'bg-white/70 backdrop-blur-xl border border-black/5 shadow-2xl' : 'bg-transparent'}
+        max-w-7xl mx-auto flex justify-between items-center px-6 py-4 rounded-full transition-all duration-700 pointer-events-auto relative overflow-hidden
+        ${isScrolled ? 'bg-white/80 backdrop-blur-2xl border border-black/10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] scale-[0.98]' : 'bg-transparent scale-100'}
       `}>
         {/* Scroll Progress Bar */}
         <motion.div 
@@ -73,15 +73,28 @@ const Navbar = () => {
         </div>
 
         {/* Center: Logo */}
-        <div className="flex flex-col items-center">
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#004F39] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#004F39]"></span>
-            </span>
-            <span className="text-[7px] uppercase tracking-[0.4em] text-[#004F39] font-black">Live Studio</span>
+        <div className="flex flex-col items-center group cursor-pointer">
+          <div className="flex items-center gap-2 overflow-hidden h-4">
+            <motion.div 
+              animate={{ y: isScrolled ? -20 : 0 }}
+              className="flex flex-col items-center"
+            >
+              <div className="flex items-center gap-2 h-4">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#004F39] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#004F39]"></span>
+                </span>
+                <span className="text-[7px] uppercase tracking-[0.4em] text-[#004F39] font-black">Live Studio</span>
+              </div>
+              <div className="h-4 flex items-center">
+                <span className="text-[7px] uppercase tracking-[0.6em] text-[#B89B5E] font-black">EST. 2024</span>
+              </div>
+            </motion.div>
           </div>
-          <div className="text-xl md:text-2xl font-serif italic tracking-tighter text-[#151613] font-black">
+          <div className={`
+            font-serif italic tracking-tighter text-[#151613] font-black transition-all duration-700
+            ${isScrolled ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'}
+          `}>
             THE LUXURY CAKE STUDIO
           </div>
         </div>
@@ -110,7 +123,7 @@ const Navbar = () => {
 const Hero = () => {
   const { heroHeadline, heroSubheadline } = useStore();
   return (
-    <section id="hero" className="relative w-full min-h-screen flex flex-col md:flex-row overflow-hidden bg-[#FFFACA] snap-start">
+    <section id="hero" className="relative w-full min-h-screen flex flex-col md:flex-row overflow-hidden bg-[#FFFACA]">
       {/* Left Side: Content (Mobile: Second) */}
       <div className="order-2 md:order-1 w-full md:w-1/2 flex flex-col justify-center px-8 md:px-24 py-20 md:py-0 bg-[#FFFACA] relative z-10">
         {/* Brand Name */}
@@ -261,7 +274,7 @@ const FloatingIngredients = () => {
 
 // --- 3D Components ---
 
-const CakeModel = ({ color, customName, activeToppings, shape = 'Round', tiers = 1 }: { color: string, customName: string, activeToppings: string[], shape?: string, tiers?: number }) => {
+const CakeModel = ({ tierColors, customName, activeToppings, shape = 'Round', tiers = 1 }: { tierColors: string[], customName: string, activeToppings: string[], shape?: string, tiers?: number }) => {
   const cakeRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
@@ -270,7 +283,7 @@ const CakeModel = ({ color, customName, activeToppings, shape = 'Round', tiers =
     }
   });
 
-  const Tier = ({ position, radius, height }: { position: [number, number, number], radius: number, height: number }) => {
+  const Tier = ({ position, radius, height, color }: { position: [number, number, number], radius: number, height: number, color: string }) => {
     const material = <meshStandardMaterial color={color} roughness={0.2} metalness={0.1} envMapIntensity={1.5} />;
     
     if (shape === 'Square') {
@@ -321,9 +334,9 @@ const CakeModel = ({ color, customName, activeToppings, shape = 'Round', tiers =
     <group ref={cakeRef} position={[0, -0.5, 0]}>
       <Float speed={1.5} rotationIntensity={0.1} floatIntensity={0.3}>
         {/* Tiers */}
-        <Tier position={[0, 0, 0]} radius={1.5} height={0.8} />
-        {tiers >= 2 && <Tier position={[0, 0.8, 0]} radius={1.1} height={0.8} />}
-        {tiers >= 3 && <Tier position={[0, 1.6, 0]} radius={0.7} height={0.8} />}
+        <Tier position={[0, 0, 0]} radius={1.5} height={0.8} color={tierColors[0] || '#ffffff'} />
+        {tiers >= 2 && <Tier position={[0, 0.8, 0]} radius={1.1} height={0.8} color={tierColors[1] || '#ffffff'} />}
+        {tiers >= 3 && <Tier position={[0, 1.6, 0]} radius={0.7} height={0.8} color={tierColors[2] || '#ffffff'} />}
 
         {/* Toppings */}
         <group position={[0, topY - 0.4, 0]}>
@@ -457,60 +470,65 @@ const CakeModel = ({ color, customName, activeToppings, shape = 'Round', tiers =
 };
 
 const BespokeStudio = () => {
-  const [flavor, setFlavor] = useState('Belgian Truffle');
+  const { bespokePricing } = useStore();
+  const [tierFlavors, setTierFlavors] = useState<string[]>(['Belgian Truffle', 'Belgian Truffle', 'Belgian Truffle']);
+  const [selectedTierIndex, setSelectedTierIndex] = useState(0);
   const [toppings, setToppings] = useState<string[]>([]);
   const [customName, setCustomName] = useState('IVAAN');
   const [size, setSize] = useState('0.5kg');
   const [shape, setShape] = useState('Round');
   const [tiers, setTiers] = useState(1);
 
+  const flavors = bespokePricing.flavors;
+  const toppingOptions = bespokePricing.toppingOptions;
+
+  const weightInKg = parseFloat(size.replace('kg', ''));
+  
+  // Get all flavors in a flat list
+  const allFlavors = [...flavors.Premium, ...flavors.Classic];
+  
+  // Calculate base price by summing the contribution of each tier's flavor
+  // We assume the total weight is distributed equally across tiers for pricing purposes
+  const basePrice = tierFlavors.slice(0, tiers).reduce((acc, flavorName) => {
+    const flavorObj = allFlavors.find(f => f.name === flavorName) || allFlavors[0];
+    return acc + (flavorObj.pricePerKg * (weightInKg / tiers));
+  }, 0);
+  
+  const tierPremium = (tiers - 1) * bespokePricing.tierPremium;
+  const shapePremium = (shape === 'Square' || shape === 'Heart') ? bespokePricing.shapePremium : 0;
+  
+  const toppingsPrice = toppings.reduce((acc, t) => acc + (toppingOptions.find(opt => opt.name === t)?.price || 0), 0);
+  const totalPrice = basePrice + tierPremium + shapePremium + toppingsPrice;
+
+  const tierColors = tierFlavors.map(flavorName => {
+    const flavorObj = allFlavors.find(f => f.name === flavorName) || allFlavors[0];
+    return flavorObj.color;
+  });
+
   const handleOrder = () => {
     sendSweetstoryOrder('bespoke', {
-      base: flavor,
+      base: tierFlavors.slice(0, tiers).join(', '),
       toppings: toppings,
       size: size,
       customName: customName,
       shape: shape,
-      tiers: tiers
+      tiers: tiers,
+      price: totalPrice
     });
   };
 
-  const flavors = {
-    Premium: [
-      { name: 'Gold Dusted Truffle', price: 4500, color: '#2D1B14', accent: '#B89B5E' },
-      { name: 'Ratnagiri Alphonso', price: 3800, color: '#FFB347', accent: '#004F39' },
-      { name: 'Belgian Truffle', price: 3500, color: '#3D2B1F', accent: '#004F39' },
-      { name: 'Champagne Sparkle', price: 4200, color: '#F7E7CE', accent: '#B89B5E' },
-      { name: 'Saffron Pistachio', price: 4000, color: '#E9D66B', accent: '#004F39' },
-      { name: 'Rose', price: 3900, color: '#FFC0CB', accent: '#004F39' },
-    ],
-    Classic: [
-      { name: 'Chocolate', price: 1800, color: '#3D2B1F', accent: '#004F39' },
-      { name: 'Vanilla', price: 1500, color: '#FFFACA', accent: '#004F39' },
-      { name: 'Butterscotch', price: 1600, color: '#E9D66B', accent: '#004F39' },
-      { name: 'Velvet Crimson', price: 2200, color: '#9B111E', accent: '#151613' },
-      { name: 'Roasted Hazelnut', price: 2500, color: '#8E7618', accent: '#004F39' },
-    ]
+  const setFlavorForTier = (flavorName: string) => {
+    const newFlavors = [...tierFlavors];
+    newFlavors[selectedTierIndex] = flavorName;
+    setTierFlavors(newFlavors);
   };
-
-  const toppingOptions = [
-    { name: 'Macarons', price: 500, icon: 'https://images.unsplash.com/photo-1569864358642-9d1684040f43?q=80&w=100&auto=format&fit=crop' },
-    { name: 'Gold Leaves', price: 800, icon: 'https://images.unsplash.com/photo-1620121692029-d088224ddc74?q=80&w=100&auto=format&fit=crop' },
-    { name: 'Orchids', price: 600, icon: 'https://images.unsplash.com/photo-1519340333755-56e9c1d04579?q=80&w=100&auto=format&fit=crop' },
-    { name: 'Chocolate', price: 400, icon: 'https://images.unsplash.com/photo-1548907040-4baa42d10919?q=80&w=100&auto=format&fit=crop' },
-    { name: 'Florals', price: 550, icon: 'https://images.unsplash.com/photo-1508610048659-a06b669e3321?q=80&w=100&auto=format&fit=crop' },
-  ];
-
-  const currentFlavor = [...flavors.Premium, ...flavors.Classic].find(f => f.name === flavor) || flavors.Classic[0];
-  const toppingsPrice = toppings.reduce((acc, t) => acc + (toppingOptions.find(opt => opt.name === t)?.price || 0), 0);
-  const totalPrice = currentFlavor.price + toppingsPrice;
 
   const toggleTopping = (name: string) => {
     setToppings(prev => prev.includes(name) ? prev.filter(t => t !== name) : [...prev, name]);
   };
 
   return (
-    <section id="bespoke-studio" className="py-20 md:py-32 px-4 md:px-8 lg:px-20 bg-[#FFFACA] min-h-screen flex items-center justify-center overflow-hidden snap-start">
+    <section id="bespoke-studio" className="py-20 md:py-32 px-4 md:px-8 lg:px-20 bg-[#FFFACA] min-h-screen flex items-center justify-center overflow-hidden">
       <div className="max-w-7xl w-full flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
         
         {/* Left: 3D Stage */}
@@ -537,7 +555,7 @@ const BespokeStudio = () => {
               <pointLight position={[-10, 10, -10]} intensity={2} />
               <directionalLight position={[5, 5, 5]} intensity={1.5} />
               
-              <CakeModel color={currentFlavor.color} customName={customName} activeToppings={toppings} shape={shape} tiers={tiers} />
+              <CakeModel tierColors={tierColors} customName={customName} activeToppings={toppings} shape={shape} tiers={tiers} />
               
               <ContactShadows position={[0, -2.5, 0]} opacity={0.7} scale={15} blur={3} far={5} />
             </React.Suspense>
@@ -556,8 +574,8 @@ const BespokeStudio = () => {
         </div>
 
         {/* Right: UI Panel */}
-        <div className="text-[#151613] space-y-8 lg:space-y-12 w-full order-2 lg:order-2">
-          <div className="space-y-3">
+        <div className="text-[#151613] space-y-8 lg:space-y-12 w-full order-2 lg:order-2 relative">
+          <div className="space-y-3 sticky top-20 md:top-32 z-20 bg-[#FFFACA]/80 backdrop-blur-sm py-4 -mt-4 border-b border-black/5">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -568,6 +586,7 @@ const BespokeStudio = () => {
             </motion.div>
             <h2 className="text-5xl md:text-7xl font-serif tracking-tighter uppercase leading-[0.85] font-black">The Luxury<br/><span className="italic text-[#004F39]">Studio</span></h2>
             <p className="text-[11px] md:text-[12px] uppercase tracking-[0.4em] text-[#151613] font-bold max-w-md">Every masterpiece begins with a single choice. Curate your legacy.</p>
+            <p className="text-[9px] uppercase tracking-[0.2em] text-[#004F39]/60 font-black">Reflecting Pune's Finest Luxury Market Rates</p>
           </div>
 
           <div className="space-y-10">
@@ -605,7 +624,10 @@ const BespokeStudio = () => {
                     {[1, 2, 3].map(t => (
                       <button 
                         key={t}
-                        onClick={() => setTiers(t)}
+                        onClick={() => {
+                          setTiers(t);
+                          if (selectedTierIndex >= t) setSelectedTierIndex(0);
+                        }}
                         className={`px-8 py-4 rounded-full text-[10px] uppercase tracking-widest font-black border-2 transition-all duration-500 ${
                           tiers === t 
                             ? 'bg-[#004F39] text-white border-[#004F39] shadow-2xl shadow-[#004F39]/40' 
@@ -619,10 +641,34 @@ const BespokeStudio = () => {
                 </div>
               </div>
 
+              {tiers > 1 && (
+                <div className="space-y-4">
+                  <h3 className="text-[11px] uppercase tracking-[0.5em] text-[#004F39] font-black flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#B89B5E]" />
+                    Select Tier to Customize
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
+                    {[...Array(tiers)].map((_, i) => (
+                      <button 
+                        key={i}
+                        onClick={() => setSelectedTierIndex(i)}
+                        className={`px-6 py-3 rounded-full text-[10px] uppercase tracking-widest font-black border-2 transition-all duration-500 ${
+                          selectedTierIndex === i 
+                            ? 'bg-[#B89B5E] text-white border-[#B89B5E] shadow-lg shadow-[#B89B5E]/30' 
+                            : 'bg-white/60 border-[#B89B5E]/20 text-[#151613] hover:bg-white/80 hover:border-[#B89B5E]/40'
+                        }`}
+                      >
+                        Tier {i + 1} ({tierFlavors[i]})
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-6">
                 <h3 className="text-[11px] uppercase tracking-[0.5em] text-[#004F39] font-black flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-[#B89B5E]" />
-                  Flavor Palette
+                  Flavor Palette {tiers > 1 ? `(for Tier ${selectedTierIndex + 1})` : ''}
                 </h3>
                 
                 <div className="space-y-8">
@@ -634,9 +680,9 @@ const BespokeStudio = () => {
                           key={f.name}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          onClick={() => setFlavor(f.name)}
+                          onClick={() => setFlavorForTier(f.name)}
                           className={`px-4 py-4 rounded-2xl text-[10px] tracking-widest uppercase border-2 transition-all duration-500 font-black ${
-                            flavor === f.name 
+                            tierFlavors[selectedTierIndex] === f.name 
                               ? 'bg-[#004F39] border-[#004F39] text-white shadow-xl shadow-[#004F39]/30' 
                               : 'bg-white/60 border-[#B89B5E]/20 text-[#151613] hover:bg-white/80 hover:border-[#B89B5E]/40'
                           }`}
@@ -655,9 +701,9 @@ const BespokeStudio = () => {
                           key={f.name}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          onClick={() => setFlavor(f.name)}
+                          onClick={() => setFlavorForTier(f.name)}
                           className={`px-4 py-4 rounded-2xl text-[10px] tracking-widest uppercase border-2 transition-all duration-500 font-black ${
-                            flavor === f.name 
+                            tierFlavors[selectedTierIndex] === f.name 
                               ? 'bg-[#004F39] border-[#004F39] text-white shadow-xl shadow-[#004F39]/30' 
                               : 'bg-white/60 border-[#B89B5E]/20 text-[#151613] hover:bg-white/80 hover:border-[#B89B5E]/40'
                           }`}
@@ -737,7 +783,9 @@ const BespokeStudio = () => {
                 <div className="flex justify-between items-end relative z-10">
                   <div className="space-y-3">
                     <p className="text-[10px] uppercase tracking-[0.5em] text-[#004F39] font-black">Your Selection</p>
-                    <p className="text-3xl md:text-4xl font-serif italic text-charcoal font-black">{flavor}</p>
+                    <p className="text-3xl md:text-4xl font-serif italic text-charcoal font-black">
+                      {tiers === 1 ? tierFlavors[0] : tierFlavors.slice(0, tiers).join(' + ')}
+                    </p>
                     <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.3em] text-[#151613] font-black">
                       <span>{shape}</span>
                       <span className="w-1.5 h-1.5 rounded-full bg-[#B89B5E]" />
@@ -764,7 +812,7 @@ const BespokeStudio = () => {
               </div>
 
               <div className="pt-4 flex justify-center">
-                <BulkInquiryConcierge productName={flavor} />
+                <BulkInquiryConcierge productName={tierFlavors.slice(0, tiers).join(', ')} />
               </div>
             </div>
           </div>
@@ -875,9 +923,9 @@ const ArtisanalGrid = () => {
   const sortedProducts = [...products].sort((a, b) => a.price - b.price);
 
   return (
-    <section id="collection" className="py-32 px-8 bg-cream snap-start">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-24">
+    <section id="collection" className="py-32 px-8 bg-cream">
+      <div className="max-w-7xl mx-auto relative">
+        <div className="text-center mb-24 sticky top-20 md:top-24 z-30 bg-cream/90 backdrop-blur-md py-8 -mt-8 border-b border-black/5">
           <motion.span 
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -944,7 +992,7 @@ const HappyCustomers = () => {
   }, []);
 
   return (
-    <section className="py-32 px-8 bg-cream overflow-hidden snap-start">
+    <section className="py-32 px-8 bg-cream overflow-hidden">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-20">
         <div className="lg:w-1/2">
           <span className="text-[10px] uppercase tracking-[0.4em] text-[#004F39] font-black mb-6 block">Testimonials</span>
@@ -1022,7 +1070,7 @@ const SweetCustoms = () => {
   };
 
   return (
-    <section className="py-32 px-8 bg-[#151613] text-[#FFFACA] overflow-hidden snap-start">
+    <section className="py-32 px-8 bg-[#151613] text-[#FFFACA] overflow-hidden">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-20">
         <div className="lg:w-1/2 space-y-8">
           <span className="text-[10px] uppercase tracking-[0.4em] text-[#004F39] font-black block">Custom Creations</span>
@@ -1107,7 +1155,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-[#151613] text-white py-32 px-8 md:px-20 overflow-hidden relative snap-start">
+    <footer className="bg-[#151613] text-white py-32 px-8 md:px-20 overflow-hidden relative">
       {/* Background Decorative Element */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#004F39]/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
       
@@ -1234,7 +1282,16 @@ export default function App() {
     const handleOpenAdmin = () => setIsAdmin(true);
     window.addEventListener('open-admin', handleOpenAdmin);
     
-    const lenis = new Lenis();
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 2,
+      infinite: false,
+    });
 
     lenis.on('scroll', ScrollTrigger.update);
 

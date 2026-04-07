@@ -26,10 +26,30 @@ export const OrderTracker = () => {
     setIsSyncing(true);
     setError("");
     try {
-      const response = await fetch(GOOGLE_SHEET_URL);
-      if (!response.ok) throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+      // Validate URL format
+      if (!GOOGLE_SHEET_URL.startsWith('http')) {
+        throw new Error("Invalid URL format. Please ensure it starts with http:// or https://");
+      }
+
+      const response = await fetch(GOOGLE_SHEET_URL, {
+        method: 'GET',
+        headers: {
+          'Accept': 'text/csv',
+        },
+        cache: 'no-cache'
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) throw new Error("Google Sheet not found. Please check the URL.");
+        if (response.status === 403) throw new Error("Access denied. Ensure the sheet is 'Published to the web'.");
+        throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+      }
       
       const csvText = await response.text();
+      
+      if (!csvText || csvText.includes('<!DOCTYPE html>')) {
+        throw new Error("The URL provided returned HTML instead of CSV. Ensure you selected 'Comma-separated values (.csv)' when publishing.");
+      }
       
       // Wrap Papa.parse in a Promise to handle it properly in async/await
       await new Promise<void>((resolve, reject) => {
@@ -138,7 +158,7 @@ export const OrderTracker = () => {
   };
 
   return (
-    <section id="order-tracking" className="py-32 px-8 bg-[#FFFACA] snap-start border-t border-black/5">
+    <section id="order-tracking" className="py-32 px-8 bg-[#FFFACA] border-t border-black/5">
       <div className="max-w-3xl mx-auto text-center">
         <motion.span 
           initial={{ opacity: 0, y: 10 }}
